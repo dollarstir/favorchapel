@@ -174,14 +174,14 @@ class _HomeState extends State<Home> {
 
                                 if(snapshot.connectionState == ConnectionState.done)
                                   if(snapshot.hasData) {
-                                    List images = snapshot.data.map((e) => e['pic']).toList();
+                                    List images = snapshot.data;
                                     
                                     return PageView.builder(
                                       controller: pageController,
                                       onPageChanged: _onPageChnaged,
                                       itemCount: images.length,
                                       itemBuilder: (context, position) {
-                                        return imageSlider(position, images);
+                                        return imageSlider(position, images[position]);
                                       },
                                     );
                                   }
@@ -383,7 +383,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  imageSlider(int index, List images) {
+  imageSlider(int index, Map details) {
     return AnimatedBuilder(
       animation: pageController,
       builder: (context, widget) {
@@ -409,18 +409,18 @@ class _HomeState extends State<Home> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Image.network(
-                "https://dollarstir.com/admin/html/ltr/pages/${images[index]}", 
+                "https://dollarstir.com/admin/html/ltr/pages/${details['pic']}", 
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
                 loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
               ),
               // SizedBox(height: 5,),
 
-              Text("Some title Here"),
+              Text("${details['pname']}"),
               RaisedButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context){
-                    return Pdetail();
+                    return Pdetail(item: details);
                   }));
                 },
                 shape: RoundedRectangleBorder(

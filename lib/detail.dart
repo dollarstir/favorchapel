@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class Pdetail extends StatefulWidget {
+  final Map item;
+
+  Pdetail({this.item});
  
   YtubeState createState() => YtubeState();
  
@@ -15,7 +18,7 @@ class YtubeState extends State<Pdetail>{
   Widget build(BuildContext context) {
   return Scaffold(
      appBar: AppBar(
-        title: Text('Event Details')),
+        title: Text('${widget.item['pname']}')),
       body: Container(
         child: Card(
           elevation: 10,
@@ -35,12 +38,17 @@ class YtubeState extends State<Pdetail>{
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Image.asset("assets/images/1.jpg",
-                                            fit: BoxFit.cover),
+                                        Image.network(
+                                          "https://dollarstir.com/admin/html/ltr/pages/${widget.item['pic']}", 
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                                          loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
+                                        ),
+
                                         // SizedBox(height: 5,),
 
                                         Text(
-                                          "SEPTEMBER 18",
+                                          "${widget.item['df']}",
                                           style: TextStyle(
                                             fontSize: 10,
                                             color: Colors.red,
@@ -58,7 +66,7 @@ class YtubeState extends State<Pdetail>{
                                         Container(
                                           padding: EdgeInsets.only(left: 10,right: 10),
                                           child: Text(
-                                              "A peaceful heart leads to a healthy body jealosy is like cancer in the bones"),
+                                              "${widget.item['depo']}"),
                                         ),
 
                                         // RaisedButton(
