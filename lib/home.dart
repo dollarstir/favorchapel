@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // import './model/Slide.dart';
 
@@ -10,6 +12,7 @@ import 'dart:async';
 // import 'package:carousel_slider/carousel_slider.dart';
 import './Radio.dart';
 import './more.dart';
+import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
@@ -57,10 +60,10 @@ class _HomeState extends State<Home> {
   // }
 
   List<String> images = [
-    'assets/images/1.jpg',
-    'assets/images/2.jpg',
-    'assets/images/3.jpg',
-    'assets/images/4.jpg'
+    // 'assets/images/1.jpg',
+    // 'assets/images/2.jpg',
+    // 'assets/images/3.jpg',
+    // 'assets/images/4.jpg'
   ];
 
   @override
@@ -89,9 +92,14 @@ class _HomeState extends State<Home> {
   }
 
   _onPageChnaged(int index) {
-    setState(() {
+    // setState(() {
       _currentPage = index;
-    });
+    // });
+  }
+
+  Future apiCall() async {
+    http.Response response = await http.get("https://dollarstir.com/admin/html/ltr/pages/api.php");
+    return json.decode(response.body);
   }
 
   @override
@@ -156,13 +164,27 @@ class _HomeState extends State<Home> {
                           Container(
                             // flex: 1,
                             height: 200,
-                            child: PageView.builder(
-                              controller: pageController,
-                              onPageChanged: _onPageChnaged,
-                              itemCount: images.length,
-                              itemBuilder: (context, position) {
-                                return imageSlider(position);
-                              },
+                            child: FutureBuilder(
+                              future: apiCall(),
+                              builder: (context, AsyncSnapshot snapshot) {
+                                if(snapshot.connectionState == ConnectionState.waiting)
+                                  return Text("lOADING");
+
+                                if(snapshot.connectionState == ConnectionState.done)
+                                  if(snapshot.hasData) {
+                                    List images = snapshot.data.map((e) => e['pic']).toList();
+                                    
+                                    return PageView.builder(
+                                      controller: pageController,
+                                      onPageChanged: _onPageChnaged,
+                                      itemCount: images.length,
+                                      itemBuilder: (context, position) {
+                                        return imageSlider(position, images);
+                                      },
+                                    );
+                                  }
+                                return Text("eRROR");
+                              }
                             ),
                           ),
                           SizedBox(
@@ -359,7 +381,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  imageSlider(int index) {
+  imageSlider(int index, List images) {
     return AnimatedBuilder(
       animation: pageController,
       builder: (context, widget) {
@@ -384,7 +406,12 @@ class _HomeState extends State<Home> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.asset(images[index], fit: BoxFit.cover),
+              Image.network(
+                "https://dollarstir.com/admin/html/ltr/pages/${images[index]}", 
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
+              ),
               // SizedBox(height: 5,),
 
               // Text("Some title Here"),
