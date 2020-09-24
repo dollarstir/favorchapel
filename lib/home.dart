@@ -13,6 +13,8 @@ import 'dart:async';
 import './Radio.dart';
 import './more.dart';
 import 'package:http/http.dart' as http;
+import './map.dart';
+import './detail.dart';
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
@@ -414,9 +416,13 @@ class _HomeState extends State<Home> {
               ),
               // SizedBox(height: 5,),
 
-              // Text("Some title Here"),
+              Text("Some title Here"),
               RaisedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context){
+                    return Pdetail();
+                  }));
+                },
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(80.0)),
                 padding: const EdgeInsets.all(0.0),
