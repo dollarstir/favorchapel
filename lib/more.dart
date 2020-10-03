@@ -8,6 +8,7 @@ import './twitter.dart';
 import './fb.dart';
 import './youtube.dart';
 import 'package:url_launcher/url_launcher.dart';
+import './instagram.dart';
 
 class Morep extends StatefulWidget {
   Morep({Key key}) : super(key: key);
@@ -414,7 +415,12 @@ _mail() async {
                     ),
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                         Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return Instagram();
+                        },));
+
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
