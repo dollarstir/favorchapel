@@ -3,6 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import './home.dart';
 import './Radio.dart';
 import './map.dart';
+// import 'package:flutter_phone_state/flutter_phone_state.dart';
+import './twitter.dart';
+import './fb.dart';
+import './youtube.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Morep extends StatefulWidget {
   Morep({Key key}) : super(key: key);
@@ -12,6 +17,45 @@ class Morep extends StatefulWidget {
 
 class _MorepState extends State<Morep> {
   int _currentindex = 2;
+
+
+  _launchURL() async {
+  const url = 'https://favorchapel.dollarstir.com/donate.php';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+_tell() async {
+  const url = 'tel:+233244044013';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+
+_message() async {
+  const url = 'sms:+233244044013';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+_mail() async {
+  const url = 'mailto:macgranahamdavid@gmail.com?subject=News&body=New%20plugin';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +88,9 @@ class _MorepState extends State<Morep> {
                       height: 10,
                     ),
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _launchURL();
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -79,7 +125,9 @@ class _MorepState extends State<Morep> {
                     ),
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                         _tell();
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -124,7 +172,9 @@ class _MorepState extends State<Morep> {
                       height: 10,
                     ),
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _mail();
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -159,7 +209,9 @@ class _MorepState extends State<Morep> {
                     ),
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _tell();
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -195,7 +247,9 @@ class _MorepState extends State<Morep> {
 
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _message();
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -230,7 +284,9 @@ class _MorepState extends State<Morep> {
                     ),
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _message();
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -319,7 +375,11 @@ class _MorepState extends State<Morep> {
                       height: 10,
                     ),
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            return Facebook();
+                        },));
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -391,7 +451,11 @@ class _MorepState extends State<Morep> {
 
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return Twitter();
+                        }));
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),
@@ -426,7 +490,11 @@ class _MorepState extends State<Morep> {
                     ),
 
                     RaisedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                            return Ytube();
+                        }));
+                      },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
                       padding: const EdgeInsets.all(0.0),

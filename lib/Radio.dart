@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 // import './model/Slide.dart';
 
@@ -8,21 +10,26 @@ import 'dart:async';
 // import 'package:carousel_slider/carousel_controller.dart';
 // import 'package:carousel_slider/carousel_options.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
-import './home.dart';
+import './Radio.dart';
 import './more.dart';
+import 'package:http/http.dart' as http;
+import './map.dart';
+import './detail.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
+import 'package:share/share.dart';
+import './home.dart';
+
 
 class Myradio extends StatefulWidget {
   Myradio({Key key}) : super(key: key);
-  var playerState = FlutterRadioPlayer.flutter_radio_paused;
-
+  var playerState = FlutterRadioPlayer.flutter_radio_playing;
   var volume = 0.8;
 
-  _RadioState createState() => _RadioState();
+  _HomeState createState() => _HomeState();
 }
 
-class _RadioState extends State<Myradio> {
+class _HomeState extends State<Myradio> {
   int _currentindex = 1;
   int _currentPage = 0;
 
@@ -62,27 +69,46 @@ class _RadioState extends State<Myradio> {
   // }
 
   List<String> images = [
-    'assets/images/1.jpg',
-    'assets/images/2.jpg',
-    'assets/images/3.jpg',
-    'assets/images/4.jpg'
+    // 'assets/images/1.jpg',
+    // 'assets/images/2.jpg',
+    // 'assets/images/3.jpg',
+    // 'assets/images/4.jpg'
   ];
+
+  // void cc()async{
+  //   if(FlutterRadioPlayer.flutter_radio_paused==true){
+
+  //     FlutterRadioPlayer.flutter_radio_playing;
+
+  //   }
+    
+
+  // }
+
+
 
   FlutterRadioPlayer _flutterRadioPlayer = new FlutterRadioPlayer();
 
   Future<void> initRadioService() async {
     try {
-      await _flutterRadioPlayer.init("Favor Chapel International", "Live",
-          "http://stream.zeno.fm/fwvp01usga0uv", "false");
+      await _flutterRadioPlayer.init("Favor Radio", "Live",
+          "http://stream.zeno.fm/k5mryscq3a0uv", "false");
     } on PlatformException {
       print("Exception occurred while trying to register the services.");
     }
   }
 
+  void autostart()async{
+  await _flutterRadioPlayer.play();
+}
+
   @override
   void initState() {
     super.initState();
     initRadioService();
+    autostart();
+    
+
     pageController = PageController(
       initialPage: 0,
       viewportFraction: 0.6,
@@ -106,12 +132,21 @@ class _RadioState extends State<Myradio> {
   }
 
   _onPageChnaged(int index) {
-    setState(() {
+    // setState(() {
       _currentPage = index;
-    });
+    // });
   }
 
-  var slidervalue = 0.8;
+  Future apiCall() async {
+    http.Response response = await http.get("https://favorchapel.dollarstir.com/ads.php");
+    return json.decode(response.body);
+  }
+
+
+  Future verseCall() async {
+    http.Response response = await http.get("https://roadtosalvation.dollarstir.com/verse.php");
+    return json.decode(response.body);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,28 +157,27 @@ class _RadioState extends State<Myradio> {
         child: Column(
           children: [
             Expanded(
-              // flex: 1,
+              flex: 1,
               child: Container(
-                // margin: EdgeInsets.only(bottom: 40),
                 width: double.infinity,
-                height: 200,
+                // height: 200,
                 child: Card(
-                  color: Colors.white,
+                  color: Colors.blue,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
+
                         width: double.infinity,
+                        height: 200,
                         child: Image.asset(
                           'assets/images/2.jpg',
+                          fit: BoxFit.fill
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
                       ),
                       Container(
                         width: double.infinity,
-                        height: 40,
+                        height: 100,
                         child: StreamBuilder(
                           stream: _flutterRadioPlayer.isPlayingStream,
                           initialData: widget.playerState,
@@ -192,7 +226,7 @@ class _RadioState extends State<Myradio> {
                                         MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
                                       RaisedButton.icon(
-                                        textColor: Colors.white,
+                                        textColor: Colors.black,
                                         icon: snapshot.data ==
                                                 FlutterRadioPlayer
                                                     .flutter_radio_playing
@@ -203,7 +237,7 @@ class _RadioState extends State<Myradio> {
                                                     .flutter_radio_playing
                                             ? Text("Pause")
                                             : Text("Play"),
-                                        color: Colors.blue,
+                                        color: Colors.white,
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(16.0))),
@@ -215,11 +249,13 @@ class _RadioState extends State<Myradio> {
                                         },
                                       ),
                                       RaisedButton.icon(
-                                        textColor: Colors.white,
+                                        
+                                        textColor: Colors.black,
                                         icon: Icon(Icons.stop),
                                         label: Text("Stop"),
-                                        color: Colors.blue,
+                                        color: Colors.white,
                                         shape: RoundedRectangleBorder(
+                                          
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(16.0))),
                                         onPressed: () async {
@@ -233,173 +269,192 @@ class _RadioState extends State<Myradio> {
                             }
                           },
                         ),
-
-                        // // child: RaisedButton.icon(
-                        // //   textColor: Colors.white,
-                        // //   icon: snapshot.data ==
-                        //                         FlutterRadioPlayer
-                        //                             .flutter_radio_playing
-                        //                     ? Icon(Icons.pause)
-                        //                     : Icon(Icons.play_arrow),
-                        // //   label:snapshot.data ==
-                        //                         FlutterRadioPlayer
-                        //                             .flutter_radio_playing
-                        //                     ? Text("Play")
-                        //                     : Text("Pause"),
-                        // //   color: Colors.blue,
-                        // //   shape: RoundedRectangleBorder(
-                        // //       borderRadius:
-                        // //           BorderRadius.all(Radius.circular(16.0))),
-                        // //    onPressed: () async {
-                        //                   print("button press data: " +
-                        //                       snapshot.data.toString());
-                        //                   await _flutterRadioPlayer
-                        //                       .playOrPause();
-                        //                 },
-                        // // ),
-                      ),
-                      Slider(
-                        value: widget.volume,
-                        min: 0,
-                        max: 1.0,
-                        onChanged: (value) => setState(
-                          () {
-                            widget.volume = value;
-                            _flutterRadioPlayer.setVolume(widget.volume);
-                          },
-                        ),
-                      ),
-                      Text(
-                          "Volume: " + (widget.volume * 100).toStringAsFixed(0))
+                      )
                     ],
                   ),
                 ),
               ),
             ),
-            //       Expanded(
-            //         flex: 1,
-            //         child: Container(
-            //             padding: EdgeInsets.only(top: 7),
-            //             child: ListView(
-            //               children: [
-            //                 Column(
-            //                   children: [
-            //                     Text(
-            //                       "Events",
-            //                       style: TextStyle(
-            //                         fontSize: 18,
-            //                         fontWeight: FontWeight.bold,
-            //                       ),
-            //                     ),
-            //                     Container(
-            //                       // flex: 1,
-            //                       height: 200,
-            //                       child: PageView.builder(
-            //                         controller: pageController,
-            //                         onPageChanged: _onPageChnaged,
-            //                         itemCount: images.length,
-            //                         itemBuilder: (context, position) {
-            //                           return imageSlider(position);
-            //                         },
-            //                       ),
-            //                     ),
-            //                     SizedBox(
-            //                       height: 10,
-            //                     ),
-            //                     Text(
-            //                       "Verse of The Day",
-            //                       style: TextStyle(
-            //                         fontSize: 18,
-            //                         fontWeight: FontWeight.bold,
-            //                       ),
-            //                     ),
-            //                     Container(
-            //                       // flex: 1,
+            Expanded(
+              flex: 1,
+              child: Container(
+                  padding: EdgeInsets.only(top: 7),
+                  child: ListView(
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            "Advertisement",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(
+                            // flex: 1,
+                            height: 200,
+                            child: FutureBuilder(
+                              future: apiCall(),
+                              builder: (context, AsyncSnapshot snapshot) {
+                                if(snapshot.connectionState == ConnectionState.waiting)
+                                  return Text("lOADING");
 
-            //                       child: Center(
-            //                         child: SizedBox(
-            //                           height: Curves.easeInOut.transform(1) * 400,
-            //                           width: Curves.easeInOut.transform(1) * double.infinity,
-            //                           child: Container(
-            //   margin: EdgeInsets.all(5),
-            //   child: Card(
-            //     elevation: 15,
-            //     child: Column(
-            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //       children: [
-            //         Image.asset("assets/images/1.jpg", fit: BoxFit.cover),
-            //         // SizedBox(height: 5,),
+                                if(snapshot.connectionState == ConnectionState.done)
+                                  if(snapshot.hasData) {
+                                    List images = snapshot.data;
+                                    
+                                    return PageView.builder(
+                                      controller: pageController,
+                                      onPageChanged: _onPageChnaged,
+                                      itemCount: images.length,
+                                      itemBuilder: (context, position) {
+                                        return imageSlider(position, images[position]);
+                                      },
+                                    );
+                                  }
+                                return Text("Something Wrong  or No record in database");
+                              }
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                //           Text(
+                //             "Verse of The Day",
+                //             style: TextStyle(
+                //               fontSize: 18,
+                //               fontWeight: FontWeight.bold,
+                //             ),
+                //           ),
+                //           Container(
+                //             // flex: 1,
 
-            //         Text("SEPTEMBER 18",style: TextStyle(
-            //           fontSize: 10,
-            //           color:Colors.red,
+                //             child: Center(
+                //               child:FutureBuilder(
+                //                 future: verseCall(),
+                //                 builder: (context, snapshot) {
+                //                   if(snapshot.connectionState == ConnectionState.waiting)
+                //                     return Text("lOADING");
 
-            //         ),textAlign: TextAlign.left,),
 
-            //         Text("Proverb 14:30",style: TextStyle(
-            //           fontWeight: FontWeight.bold,
-            //         ),),
+                //                   if(snapshot.connectionState == ConnectionState.done)
+                //                     if(snapshot.hasData) {
+                //                       List images = snapshot.data;
+                                      
+                //                       return   SizedBox(
+                //                 height: Curves.easeInOut.transform(1) * 400,
+                //                 width: Curves.easeInOut.transform(1) *
+                //                     double.infinity,
+                //                 child: Container(
+                //                   margin: EdgeInsets.all(5),
+                //                   child: Card(
+                //                     elevation: 15,
+                //                     child: Column(
+                //                       mainAxisAlignment:
+                //                           MainAxisAlignment.spaceBetween,
+                //                       children: [
+                //                         Image.network("https://favorchapel.dollarstir.com/upload/"+ snapshot.data[0]['vpic'],
+                //                             fit: BoxFit.cover,
+                //                             errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                // loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
+                //                             ),
+                //                         // SizedBox(height: 5,),
 
-            //         Text("A peaceful heart leads to a healthy body jealosy is like cancer in the bones"),
+                //                         Text(
+                //                           snapshot.data[0]['dateadded'],
+                //                           style: TextStyle(
+                //                             fontSize: 10,
+                //                             color: Colors.red,
+                //                           ),
+                //                           textAlign: TextAlign.left,
+                //                         ),
 
-            //         // RaisedButton(
-            //         //   onPressed: () {},
-            //         //   shape: RoundedRectangleBorder(
-            //         //       borderRadius: BorderRadius.circular(80.0)),
-            //         //   padding: const EdgeInsets.all(0.0),
-            //         //   child: Ink(
-            //         //     decoration: const BoxDecoration(
-            //         //       gradient: LinearGradient(
-            //         //         colors: <Color>[
-            //         //           Color(0xFF0D47A1),
-            //         //           Color(0xFF1976D2),
-            //         //           Color(0xFF42A5F5),
-            //         //         ],
-            //         //       ),
-            //         //       borderRadius: BorderRadius.all(Radius.circular(80.0)),
-            //         //     ),
-            //         //     child: Container(
-            //         //       constraints: const BoxConstraints(
-            //         //           minWidth: 80.0,
-            //         //           minHeight: 36.0), // min sizes for Material buttons
-            //         //       alignment: Alignment.center,
-            //         //       child: const Text(
-            //         //         'Read Now',
-            //         //         textAlign: TextAlign.center,
-            //         //         style: TextStyle(color: Colors.white),
-            //         //       ),
-            //         //     ),
-            //         //   ),
-            //         // )
+                //                         Text(
+                //                           snapshot.data[0]['vtitle'],
+                //                           style: TextStyle(
+                //                             fontWeight: FontWeight.bold,
+                //                           ),
+                //                         ),
 
-            //         Container(
-            //           child: Row(
-            //             children: [
+                //                         Container(
+                //                           padding: EdgeInsets.only(left: 10,right: 10),
+                //                           child: Text(
+                //                               snapshot.data[0]['vdetail']),
+                //                         ),
 
-            //               RaisedButton.icon(
-            //                 color: Colors.transparent,
-            //                 disabledColor: Colors.transparent,
-            //                 icon: Icon(Icons.share,color: Colors.blue,),
-            //                 label: Text("Share",style: TextStyle(
-            //                   color: Colors.blue,
-            //                 ),),
-            //               )
+                //                         // RaisedButton(
+                //                         //   onPressed: () {},
+                //                         //   shape: RoundedRectangleBorder(
+                //                         //       borderRadius: BorderRadius.circular(80.0)),
+                //                         //   padding: const EdgeInsets.all(0.0),
+                //                         //   child: Ink(
+                //                         //     decoration: const BoxDecoration(
+                //                         //       gradient: LinearGradient(
+                //                         //         colors: <Color>[
+                //                         //           Color(0xFF0D47A1),
+                //                         //           Color(0xFF1976D2),
+                //                         //           Color(0xFF42A5F5),
+                //                         //         ],
+                //                         //       ),
+                //                         //       borderRadius: BorderRadius.all(Radius.circular(80.0)),
+                //                         //     ),
+                //                         //     child: Container(
+                //                         //       constraints: const BoxConstraints(
+                //                         //           minWidth: 80.0,
+                //                         //           minHeight: 36.0), // min sizes for Material buttons
+                //                         //       alignment: Alignment.center,
+                //                         //       child: const Text(
+                //                         //         'Read Now',
+                //                         //         textAlign: TextAlign.center,
+                //                         //         style: TextStyle(color: Colors.white),
+                //                         //       ),
+                //                         //     ),
+                //                         //   ),
+                //                         // )
 
-            //             ],
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
-            //                         ),
-            //                       ),
-            //                     )
-            //                   ],
-            //                 ),
-            //               ],
-            //             )),
-            //       ),
+                //                         Container(
+                //                           child: Row(
+                //                             children: [
+                //                               RaisedButton.icon(
+                //                                 onPressed: () {
+                //                                   Share.share(snapshot.data[0]['vdetail'],
+                //                                   subject: snapshot.data[0]['vtitle']);
+                //                                 },
+                //                                 color: Colors.transparent,
+                //                                 disabledColor:
+                //                                     Colors.transparent,
+                //                                 icon: Icon(
+                //                                   Icons.share,
+                //                                   color: Colors.blue,
+                //                                 ),
+                //                                 label: Text(
+                //                                   "Share",
+                //                                   style: TextStyle(
+                //                                     color: Colors.blue,
+                //                                   ),
+                //                                 ),
+                //                               )
+                //                             ],
+                //                           ),
+                //                         ),
+                //                       ],
+                //                     ),
+                //                   ),
+                //                 ),
+                //               );
+                //                     }
+                //                   return Text("eRROR");
+                                
+                                  
+                //                 },
+                //               )
+                //             ),
+                //           )
+                        ],
+                      ),
+                    ],
+                  )),
+            ),
           ],
         ),
       ),
@@ -452,20 +507,22 @@ class _RadioState extends State<Myradio> {
             _currentindex = index;
           });
 
-          if (_currentindex == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) {
-                return Home();
-              }),
-            );
-          } else if (_currentindex == 2) {
+          if (_currentindex == 2) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
                 return Morep();
               }),
             );
+          } else if (_currentindex == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return Home();
+              }),
+            );
+            
+            
           } else if (_currentindex == 3) {
             Navigator.push(
               context,
@@ -479,7 +536,7 @@ class _RadioState extends State<Myradio> {
     );
   }
 
-  imageSlider(int index) {
+  imageSlider(int index, Map details) {
     return AnimatedBuilder(
       animation: pageController,
       builder: (context, widget) {
@@ -491,8 +548,8 @@ class _RadioState extends State<Myradio> {
 
         return Center(
           child: SizedBox(
-            height: Curves.easeInOut.transform(value) * 200,
-            width: Curves.easeInOut.transform(value) * 220,
+            height: Curves.easeInOut.transform(value) * 300,
+            width: Curves.easeInOut.transform(value) * 210,
             child: widget,
           ),
         );
@@ -504,12 +561,28 @@ class _RadioState extends State<Myradio> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.asset(images[index], fit: BoxFit.cover),
+              Container(
+                height: 110,
+                width: double.infinity,
+                child: Image.network(
+                "https://favorchapel.dollarstir.com/upload/${details['pic']}", 
+                fit: BoxFit.fill,
+                
+                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
+              ),
+              ),
               // SizedBox(height: 5,),
 
-              // Text("Some title Here"),
-              RaisedButton(
-                onPressed: () {},
+              Text("${details['title']}"),
+              Container(
+                width: 150,
+                child: RaisedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context){
+                    return Pdetail(item: details);
+                  }));
+                },
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(80.0)),
                 padding: const EdgeInsets.all(0.0),
@@ -537,6 +610,7 @@ class _RadioState extends State<Myradio> {
                   ),
                 ),
               )
+              ),
             ],
           ),
         ),

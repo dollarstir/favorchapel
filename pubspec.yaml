@@ -37,11 +37,14 @@ dependencies:
   http:
   # awesome_package:
   # google_fonts:
-  # url_launcher:
+  url_launcher:
   # carousel_slider: 
+  
   google_maps_flutter: ^0.5.32
   flutter_webview_plugin: ^0.3.11
   webview_flutter:
+  share: ^0.6.5+2
+  # flutter_phone_state: 
 
 dev_dependencies:
   flutter_test:

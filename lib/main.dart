@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Favor Chapel International',
+      title: 'Favor Radio',
       debugShowCheckedModeBanner: false,
 
       home: Home(),

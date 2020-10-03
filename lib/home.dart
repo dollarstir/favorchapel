@@ -15,9 +15,15 @@ import './more.dart';
 import 'package:http/http.dart' as http;
 import './map.dart';
 import './detail.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_radio_player/flutter_radio_player.dart';
+import 'package:share/share.dart';
+
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
+  var playerState = FlutterRadioPlayer.flutter_radio_paused;
+var volume = 0.8;
 
   _HomeState createState() => _HomeState();
 }
@@ -68,9 +74,40 @@ class _HomeState extends State<Home> {
     // 'assets/images/4.jpg'
   ];
 
+  // void cc()async{
+  //   if(FlutterRadioPlayer.flutter_radio_paused==true){
+
+  //     FlutterRadioPlayer.flutter_radio_playing;
+
+  //   }
+    
+
+  // }
+
+
+
+  FlutterRadioPlayer _flutterRadioPlayer = new FlutterRadioPlayer();
+
+  Future<void> initRadioService() async {
+    try {
+      await _flutterRadioPlayer.init("Favor Radio", "Live",
+          "http://stream.zeno.fm/k5mryscq3a0uv", "false");
+    } on PlatformException {
+      print("Exception occurred while trying to register the services.");
+    }
+  }
+
+
+void autostart()async{
+  await _flutterRadioPlayer.play();
+}
   @override
   void initState() {
     super.initState();
+    initRadioService();
+    // autostart();
+    
+
     pageController = PageController(
       initialPage: 0,
       viewportFraction: 0.6,
@@ -100,7 +137,13 @@ class _HomeState extends State<Home> {
   }
 
   Future apiCall() async {
-    http.Response response = await http.get("https://dollarstir.com/admin/html/ltr/pages/api.php");
+    http.Response response = await http.get("https://favorchapel.dollarstir.com/api.php");
+    return json.decode(response.body);
+  }
+
+
+  Future verseCall() async {
+    http.Response response = await http.get("https://favorchapel.dollarstir.com/verse.php");
     return json.decode(response.body);
   }
 
@@ -116,31 +159,114 @@ class _HomeState extends State<Home> {
               flex: 1,
               child: Container(
                 width: double.infinity,
-                height: 200,
+                // height: 200,
                 child: Card(
                   color: Colors.blue,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
+
                         width: double.infinity,
+                        height: 200,
                         child: Image.asset(
                           'assets/images/2.jpg',
+                          fit: BoxFit.fill
                         ),
                       ),
                       Container(
-                        width: 150,
-                        // height: 100,
-                        child: RaisedButton.icon(
-                          icon: Icon(Icons.play_arrow),
-                          label: Text(
-                            'Play',
-                          ),
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(16.0))),
-                          onPressed: () {},
+                        width: double.infinity,
+                        height: 100,
+                        child: StreamBuilder(
+                          stream: _flutterRadioPlayer.isPlayingStream,
+                          initialData: widget.playerState,
+                          builder: (BuildContext context,
+                              AsyncSnapshot<String> snapshot) {
+                            String returnData = snapshot.data;
+                            print("object data: " + returnData);
+                            switch (returnData) {
+                              case FlutterRadioPlayer.flutter_radio_stopped:
+                                return RaisedButton.icon(
+                                  textColor: Colors.white,
+                                  icon: Icon(Icons.stay_current_landscape),
+                                  label: Text("Start Listening"),
+                                  color: Colors.blue,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(16.0))),
+                                  onPressed: () async {
+                                    await initRadioService();
+                                  },
+                                );
+                                break;
+                              case FlutterRadioPlayer.flutter_radio_loading:
+                                return Text("Loading stream...");
+                              case FlutterRadioPlayer.flutter_radio_error:
+                                return RaisedButton.icon(
+                                  textColor: Colors.white,
+                                  icon: Icon(Icons.refresh),
+                                  label: Text("Retry Listening"),
+                                  color: Colors.blue,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(16.0))),
+                                  onPressed: () async {
+                                    await initRadioService();
+                                  },
+                                );
+                                break;
+
+                                break;
+                              default:
+                                return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: <Widget>[
+                                      RaisedButton.icon(
+                                        textColor: Colors.black,
+                                        icon: snapshot.data ==
+                                                FlutterRadioPlayer
+                                                    .flutter_radio_playing
+                                            ? Icon(Icons.pause)
+                                            : Icon(Icons.play_arrow),
+                                        label: snapshot.data ==
+                                                FlutterRadioPlayer
+                                                    .flutter_radio_playing
+                                            ? Text("Pause")
+                                            : Text("Play"),
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(16.0))),
+                                        onPressed: () async {
+                                          print("button press data: " +
+                                              snapshot.data.toString());
+                                          await _flutterRadioPlayer
+                                              .playOrPause();
+                                        },
+                                      ),
+                                      RaisedButton.icon(
+                                        
+                                        textColor: Colors.black,
+                                        icon: Icon(Icons.stop),
+                                        label: Text("Stop"),
+                                        color: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(16.0))),
+                                        onPressed: () async {
+                                          print("button press data: " +
+                                              snapshot.data.toString());
+                                          await _flutterRadioPlayer.stop();
+                                        },
+                                      ),
+                                    ]);
+                                break;
+                            }
+                          },
                         ),
                       )
                     ],
@@ -185,7 +311,7 @@ class _HomeState extends State<Home> {
                                       },
                                     );
                                   }
-                                return Text("eRROR");
+                                return Text("Something Wrong  or No record in database");
                               }
                             ),
                           ),
@@ -203,7 +329,18 @@ class _HomeState extends State<Home> {
                             // flex: 1,
 
                             child: Center(
-                              child: SizedBox(
+                              child:FutureBuilder(
+                                future: verseCall(),
+                                builder: (context, snapshot) {
+                                  if(snapshot.connectionState == ConnectionState.waiting)
+                                    return Text("lOADING");
+
+
+                                  if(snapshot.connectionState == ConnectionState.done)
+                                    if(snapshot.hasData) {
+                                      List images = snapshot.data;
+                                      
+                                      return   SizedBox(
                                 height: Curves.easeInOut.transform(1) * 400,
                                 width: Curves.easeInOut.transform(1) *
                                     double.infinity,
@@ -215,12 +352,19 @@ class _HomeState extends State<Home> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Image.asset("assets/images/1.jpg",
-                                            fit: BoxFit.cover),
+                                        Container(
+                                          width: double.infinity,
+                                          height: 200,
+                                          child: Image.network("https://favorchapel.dollarstir.com/upload/"+ snapshot.data[0]['vpic'],
+                                            fit: BoxFit.fill,
+                                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
+                                            ),
+                                        ),
                                         // SizedBox(height: 5,),
 
                                         Text(
-                                          "SEPTEMBER 18",
+                                          snapshot.data[0]['dateadded'],
                                           style: TextStyle(
                                             fontSize: 10,
                                             color: Colors.red,
@@ -229,7 +373,7 @@ class _HomeState extends State<Home> {
                                         ),
 
                                         Text(
-                                          "Proverb 14:30",
+                                          snapshot.data[0]['vtitle'],
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -238,7 +382,7 @@ class _HomeState extends State<Home> {
                                         Container(
                                           padding: EdgeInsets.only(left: 10,right: 10),
                                           child: Text(
-                                              "A peaceful heart leads to a healthy body jealosy is like cancer in the bones"),
+                                              snapshot.data[0]['vdetail']),
                                         ),
 
                                         // RaisedButton(
@@ -275,6 +419,10 @@ class _HomeState extends State<Home> {
                                           child: Row(
                                             children: [
                                               RaisedButton.icon(
+                                                onPressed: () {
+                                                  Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
+                                                  subject: snapshot.data[0]['vtitle']);
+                                                },
                                                 color: Colors.transparent,
                                                 disabledColor:
                                                     Colors.transparent,
@@ -296,7 +444,13 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                 ),
-                              ),
+                              );
+                                    }
+                                  return Text("Something Wrong  or No record in database");
+                                
+                                  
+                                },
+                              )
                             ),
                           )
                         ],
@@ -395,8 +549,8 @@ class _HomeState extends State<Home> {
 
         return Center(
           child: SizedBox(
-            height: Curves.easeInOut.transform(value) * 200,
-            width: Curves.easeInOut.transform(value) * 220,
+            height: Curves.easeInOut.transform(value) * 300,
+            width: Curves.easeInOut.transform(value) * 210,
             child: widget,
           ),
         );
@@ -408,16 +562,23 @@ class _HomeState extends State<Home> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.network(
-                "https://dollarstir.com/admin/html/ltr/pages/${details['pic']}", 
-                fit: BoxFit.cover,
+              Container(
+                height: 110,
+                width: double.infinity,
+                child: Image.network(
+                "https://favorchapel.dollarstir.com/upload/${details['pic']}", 
+                fit: BoxFit.fill,
+                
                 errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
                 loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
               ),
+              ),
               // SizedBox(height: 5,),
 
-              Text("${details['pname']}"),
-              RaisedButton(
+              Text("${details['title']}"),
+              Container(
+                width: 150,
+                child: RaisedButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context){
                     return Pdetail(item: details);
@@ -450,6 +611,7 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               )
+              ),
             ],
           ),
         ),

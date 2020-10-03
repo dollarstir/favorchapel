@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:share/share.dart';
 
 class Pdetail extends StatefulWidget {
   final Map item;
@@ -18,7 +19,7 @@ class YtubeState extends State<Pdetail>{
   Widget build(BuildContext context) {
   return Scaffold(
      appBar: AppBar(
-        title: Text('${widget.item['pname']}')),
+        title: Text('${widget.item['title']}')),
       body: Container(
         child: Card(
           elevation: 10,
@@ -27,7 +28,7 @@ class YtubeState extends State<Pdetail>{
 
                             child: Center(
                               child: SizedBox(
-                                height: Curves.easeInOut.transform(1) * 400,
+                                // height: Curves.easeInOut.transform(1) * 400,
                                 width: Curves.easeInOut.transform(1) *
                                     double.infinity,
                                 child: Container(
@@ -39,7 +40,7 @@ class YtubeState extends State<Pdetail>{
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Image.network(
-                                          "https://dollarstir.com/admin/html/ltr/pages/${widget.item['pic']}", 
+                                          "https://favorchapel.dollarstir.com/upload/${widget.item['pic']}", 
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
                                           loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
@@ -48,7 +49,7 @@ class YtubeState extends State<Pdetail>{
                                         // SizedBox(height: 5,),
 
                                         Text(
-                                          "${widget.item['df']}",
+                                          "${widget.item['dateadded']}",
                                           style: TextStyle(
                                             fontSize: 10,
                                             color: Colors.red,
@@ -57,7 +58,7 @@ class YtubeState extends State<Pdetail>{
                                         ),
 
                                         Text(
-                                          "Proverb 14:30",
+                                          "${widget.item['title']}",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -66,7 +67,7 @@ class YtubeState extends State<Pdetail>{
                                         Container(
                                           padding: EdgeInsets.only(left: 10,right: 10),
                                           child: Text(
-                                              "${widget.item['depo']}"),
+                                              "${widget.item['description']}"),
                                         ),
 
                                         // RaisedButton(
@@ -103,6 +104,11 @@ class YtubeState extends State<Pdetail>{
                                           child: Row(
                                             children: [
                                               RaisedButton.icon(
+                                                onPressed: () {
+                                                  Share.share("${widget.item['description']}",
+                                                  subject: '${widget.item['title']}');
+
+                                                },
                                                 color: Colors.transparent,
                                                 disabledColor:
                                                     Colors.transparent,
@@ -116,7 +122,8 @@ class YtubeState extends State<Pdetail>{
                                                     color: Colors.blue,
                                                   ),
                                                 ),
-                                              )
+                                              ),
+                                              
                                             ],
                                           ),
                                         ),

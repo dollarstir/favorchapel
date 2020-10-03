@@ -1,4 +1,4 @@
-package com.example.Favorchapel
+package com.dollarsoft.Favorchapel
 
 import io.flutter.embedding.android.FlutterActivity
 
