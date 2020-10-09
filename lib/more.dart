@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import './home.dart';
@@ -9,6 +10,7 @@ import './fb.dart';
 import './youtube.dart';
 import 'package:url_launcher/url_launcher.dart';
 import './instagram.dart';
+import './prayer.dart';
 
 class Morep extends StatefulWidget {
   Morep({Key key}) : super(key: key);
@@ -21,7 +23,7 @@ class _MorepState extends State<Morep> {
 
 
   _launchURL() async {
-  const url = 'https://favorchapel.dollarstir.com/donate.php';
+  const url = 'https://paystack.com/pay/3cc3u-3o6a';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
@@ -115,7 +117,7 @@ _mail() async {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Give Online",style: TextStyle(color: Colors.white),),
+                              Text("online",style: TextStyle(color: Colors.white),),
                               SizedBox(width: 20,),
                              
                               Icon(Icons.arrow_forward_ios,color: Colors.white,),
@@ -152,7 +154,7 @@ _mail() async {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Call to Give",style: TextStyle(color: Colors.white),),
+                              Text("Call",style: TextStyle(color: Colors.white),),
                               SizedBox(width: 20,),
                              
                               Icon(Icons.phone,color: Colors.white,),
@@ -211,7 +213,9 @@ _mail() async {
 
                     RaisedButton(
                       onPressed: () {
-                        _tell();
+                        Navigator.push(context, MaterialPageRoute(builder: (context){
+                          return Prayer();
+                        }));
                       },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(80.0)),
@@ -236,7 +240,7 @@ _mail() async {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Prayer",style: TextStyle(color: Colors.white),),
+                              Text("Prayer Request",style: TextStyle(color: Colors.white),),
                               SizedBox(width: 20,),
                              
                               Icon(Icons.hearing,color: Colors.white,),
@@ -274,7 +278,7 @@ _mail() async {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Comment",style: TextStyle(color: Colors.white),),
+                              Text("Request Song or Playlist",style: TextStyle(color: Colors.white),),
                               SizedBox(width: 20,),
                              
                               Icon(Icons.comment,color: Colors.white,),
@@ -311,7 +315,7 @@ _mail() async {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Text Us",style: TextStyle(color: Colors.white),),
+                              Text("Share Testimony",style: TextStyle(color: Colors.white),),
                               SizedBox(width: 20,),
                              
                               Icon(Icons.message,color: Colors.white,),

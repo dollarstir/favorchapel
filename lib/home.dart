@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 // import './model/Slide.dart';
 
 // import './widget/slider.dart';
@@ -17,12 +20,14 @@ import './map.dart';
 import './detail.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
-import 'package:share/share.dart';
+// import 'package:share/share.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
+
 
 
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
-  var playerState = FlutterRadioPlayer.flutter_radio_paused;
+  var playerState = FlutterRadioPlayer.flutter_radio_playing;
 var volume = 0.8;
 
   _HomeState createState() => _HomeState();
@@ -84,6 +89,28 @@ class _HomeState extends State<Home> {
 
   // }
 
+   Future<void> _shareImageFromUrl(mypic,mymess,mytt) async {
+    try {
+      var request = await HttpClient().getUrl(Uri.parse(
+          'https://favorchapel.dollarstir.com/upload/$mypic'));
+      var response = await request.close();
+      var  bytes = await consolidateHttpClientResponseBytes(response);
+      await Share.file('$mytt', '$mypic', bytes, '*/*',text: mymess);
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
+
+   Future<void> _shareText() async {
+    try {
+      Share.text('my text title',
+          'This is my text to share with other applications.', 'text/plain');
+    } catch (e) {
+      print('error: $e');
+    }
+  }
+
 
 
   FlutterRadioPlayer _flutterRadioPlayer = new FlutterRadioPlayer();
@@ -105,7 +132,7 @@ void autostart()async{
   void initState() {
     super.initState();
     initRadioService();
-    // autostart();
+    autostart();
     
 
     pageController = PageController(
@@ -170,7 +197,7 @@ void autostart()async{
                         width: double.infinity,
                         height: 200,
                         child: Image.asset(
-                          'assets/images/2.jpg',
+                          'assets/images/Radio.jpg',
                           fit: BoxFit.fill
                         ),
                       ),
@@ -419,9 +446,19 @@ void autostart()async{
                                           child: Row(
                                             children: [
                                               RaisedButton.icon(
-                                                onPressed: () {
-                                                  Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
-                                                  subject: snapshot.data[0]['vtitle']);
+                                                onPressed: () async{
+                                                  var mymess= "FAVOR CHAPEL INTERNATIONAL\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'];
+                                                  // Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
+                                                  // subject: snapshot.data[0]['vtitle']);
+                                                  var mpp = snapshot.data[0]['vpic'];
+                                                  var mytt= snapshot.data[0]['vtitle'];
+                                                  // Share.shareFiles(["https://favorchapel.dollarstir.com/upload/${snapshot.data[0]['vpic']}"],subject: snapshot.data[0]['vtitle'],text:"FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'] );
+                                                    //   var request = await HttpClient().getUrl((Uri.parse('https://shop.esys.eu/media/image/6f/8f/af/amlog_transport-berwachung.jpg')));
+                                                    //  var response = await request.close();
+                                                    //   var  bytes = await consolidateHttpClientResponseBytes(response);
+                                                    // await Share.file('ESYS AMLOG', 'amlog.jpg', bytes, 'image/jpg');'
+
+                                                    await _shareImageFromUrl(mpp,mymess,mytt);
                                                 },
                                                 color: Colors.transparent,
                                                 disabledColor:

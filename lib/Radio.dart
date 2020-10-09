@@ -171,7 +171,7 @@ class _HomeState extends State<Myradio> {
                         width: double.infinity,
                         height: 200,
                         child: Image.asset(
-                          'assets/images/2.jpg',
+                          'assets/images/Radio.jpg',
                           fit: BoxFit.fill
                         ),
                       ),

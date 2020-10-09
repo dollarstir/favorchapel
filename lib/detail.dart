@@ -1,6 +1,27 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:share/share.dart';
+import 'package:path_provider/path_provider.dart';
+// import './model/Slide.dart';
+
+// import './widget/slider.dart';
+import 'dart:async';
+// import './slidedot.dart';
+
+// import 'package:carousel_slider/carousel_controller.dart';
+// import 'package:carousel_slider/carousel_options.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
+import './Radio.dart';
+import './more.dart';
+import 'package:http/http.dart' as http;
+import './map.dart';
+import './detail.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_radio_player/flutter_radio_player.dart';
+// import 'package:share/share.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 
 class Pdetail extends StatefulWidget {
   final Map item;
@@ -13,6 +34,18 @@ class Pdetail extends StatefulWidget {
  
 class YtubeState extends State<Pdetail>{
  
+
+ Future<void> _shareImageFromUrl(mypic,mymess,mytt) async {
+    try {
+      var request = await HttpClient().getUrl(Uri.parse(
+          'https://favorchapel.dollarstir.com/upload/$mypic'));
+      var response = await request.close();
+      var  bytes = await consolidateHttpClientResponseBytes(response);
+      await Share.file('$mytt', '$mypic', bytes, '*/*',text: mymess);
+    } catch (e) {
+      print('error: $e');
+    }
+  }
   
  
   @override
@@ -104,9 +137,21 @@ class YtubeState extends State<Pdetail>{
                                           child: Row(
                                             children: [
                                               RaisedButton.icon(
-                                                onPressed: () {
-                                                  Share.share("${widget.item['description']}",
-                                                  subject: '${widget.item['title']}');
+                                                onPressed: ()async {
+                                                  // Share.share("${widget.item['description']}",
+                                                  // subject: '${widget.item['title']}');
+                                                  var mytitle=widget.item['title'];
+                                                  var mymess= "FAVOR CHAPEL INTERNATIONAL\n \n  TITLE : " + widget.item['title']+ ' \n \n' + widget.item['description'];
+                                                  // Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
+                                                  // subject: snapshot.data[0]['vtitle']);
+                                                  var mpp = widget.item['pic'];
+                                                  // Share.shareFiles(["https://favorchapel.dollarstir.com/upload/${snapshot.data[0]['vpic']}"],subject: snapshot.data[0]['vtitle'],text:"FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'] );
+                                                    //   var request = await HttpClient().getUrl((Uri.parse('https://shop.esys.eu/media/image/6f/8f/af/amlog_transport-berwachung.jpg')));
+                                                    //  var response = await request.close();
+                                                    //   var  bytes = await consolidateHttpClientResponseBytes(response);
+                                                    // await Share.file('ESYS AMLOG', 'amlog.jpg', bytes, 'image/jpg');'
+
+                                                    await _shareImageFromUrl(mpp,mymess,mytitle);
 
                                                 },
                                                 color: Colors.transparent,

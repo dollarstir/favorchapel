@@ -29,7 +29,7 @@ class YtubeState extends State<Instagram>{
   Widget build(BuildContext context) {
   return Scaffold(
      appBar: AppBar(
-        title: Text('Favor Chapel')),
+        title: Text('Instagram')),
       body: IndexedStack(
       index: position,
       children: <Widget>[
