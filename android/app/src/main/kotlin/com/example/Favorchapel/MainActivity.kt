@@ -1,4 +1,4 @@
-package com.dollarsoft.Favorchapel
+package com.favorchapel.radio
 
 import io.flutter.embedding.android.FlutterActivity
 

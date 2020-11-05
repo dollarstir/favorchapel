@@ -38,7 +38,7 @@ class YtubeState extends State<Pdetail>{
  Future<void> _shareImageFromUrl(mypic,mymess,mytt) async {
     try {
       var request = await HttpClient().getUrl(Uri.parse(
-          'https://favorchapel.dollarstir.com/upload/$mypic'));
+          'http://radio.favorchapel.com/upload/$mypic'));
       var response = await request.close();
       var  bytes = await consolidateHttpClientResponseBytes(response);
       await Share.file('$mytt', '$mypic', bytes, '*/*',text: mymess);
@@ -73,7 +73,7 @@ class YtubeState extends State<Pdetail>{
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Image.network(
-                                          "https://favorchapel.dollarstir.com/upload/${widget.item['pic']}", 
+                                          "http://radio.favorchapel.com/upload/${widget.item['pic']}", 
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
                                           loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
@@ -145,7 +145,7 @@ class YtubeState extends State<Pdetail>{
                                                   // Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
                                                   // subject: snapshot.data[0]['vtitle']);
                                                   var mpp = widget.item['pic'];
-                                                  // Share.shareFiles(["https://favorchapel.dollarstir.com/upload/${snapshot.data[0]['vpic']}"],subject: snapshot.data[0]['vtitle'],text:"FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'] );
+                                                  // Share.shareFiles(["http://radio.favorchapel.com/upload/${snapshot.data[0]['vpic']}"],subject: snapshot.data[0]['vtitle'],text:"FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'] );
                                                     //   var request = await HttpClient().getUrl((Uri.parse('https://shop.esys.eu/media/image/6f/8f/af/amlog_transport-berwachung.jpg')));
                                                     //  var response = await request.close();
                                                     //   var  bytes = await consolidateHttpClientResponseBytes(response);

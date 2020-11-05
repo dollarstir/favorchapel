@@ -99,7 +99,7 @@ class _PrayerState extends State<Prayer> {
         
       });
 
-      Response response = await Dio().post("https://favorchapel.dollarstir.com/prayer.php",data: formData,onSendProgress: (int sent, int total) {
+      Response response = await Dio().post("http://radio.favorchapel.com/prayer.php",data: formData,onSendProgress: (int sent, int total) {
           print(((sent /total)*100).round());
           setState(() {
             cpercent= ((sent /total)*100).round();

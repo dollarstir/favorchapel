@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:ui';
 
-import 'package:Favorchapel/adverts.dart';
 import 'package:flutter/material.dart';
 // import './model/Slide.dart';
 
@@ -23,16 +21,16 @@ import 'package:share/share.dart';
 import './home.dart';
 
 
-class Myradio extends StatefulWidget {
-  Myradio({Key key}) : super(key: key);
+class Myadd extends StatefulWidget {
+  Myadd({Key key}) : super(key: key);
   var playerState = FlutterRadioPlayer.flutter_radio_playing;
   var volume = 0.8;
 
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Myradio> {
-  int _currentindex = 1;
+class _HomeState extends State<Myadd> {
+  int _currentindex = 2;
   int _currentPage = 0;
 
   PageController pageController;
@@ -139,14 +137,6 @@ class _HomeState extends State<Myradio> {
     // });
   }
 
-  Future songtitle() async {
-    http.Response response =
-        await http.get("http://radio.favorchapel.com/stream.php");
-        var rtt= json.decode(response.body);
-        
-    return json.decode(response.body);
-  }
-
   Future apiCall() async {
     http.Response response = await http.get("http://radio.favorchapel.com/ads.php");
     return json.decode(response.body);
@@ -154,7 +144,7 @@ class _HomeState extends State<Myradio> {
 
 
   Future verseCall() async {
-    http.Response response = await http.get("https://favorchapel.dollarstir.com/verse.php");
+    http.Response response = await http.get("https://roadtosalvation.dollarstir.com/verse.php");
     return json.decode(response.body);
   }
 
@@ -166,165 +156,155 @@ class _HomeState extends State<Myradio> {
         color: Colors.white,
         child: Column(
           children: [
+            // Expanded(
+            //   flex: 1,
+            //   child: Container(
+            //     width: double.infinity,
+            //     // height: 200,
+            //     child: Card(
+            //       color: Colors.blue,
+            //       child: Column(
+            //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //         children: [
+            //           Container(
+
+            //             width: double.infinity,
+            //             height: 200,
+            //             child: Image.asset(
+            //               'assets/images/Radio.jpg',
+            //               fit: BoxFit.fill
+            //             ),
+            //           ),
+            //           Container(
+            //             width: double.infinity,
+            //             height: 100,
+            //             child: StreamBuilder(
+            //               stream: _flutterRadioPlayer.isPlayingStream,
+            //               initialData: widget.playerState,
+            //               builder: (BuildContext context,
+            //                   AsyncSnapshot<String> snapshot) {
+            //                 String returnData = snapshot.data;
+            //                 print("object data: " + returnData);
+            //                 switch (returnData) {
+            //                   case FlutterRadioPlayer.flutter_radio_stopped:
+            //                     return RaisedButton.icon(
+            //                       textColor: Colors.white,
+            //                       icon: Icon(Icons.stay_current_landscape),
+            //                       label: Text("Start Listening"),
+            //                       color: Colors.blue,
+            //                       shape: RoundedRectangleBorder(
+            //                           borderRadius: BorderRadius.all(
+            //                               Radius.circular(16.0))),
+            //                       onPressed: () async {
+            //                         await initRadioService();
+            //                       },
+            //                     );
+            //                     break;
+            //                   case FlutterRadioPlayer.flutter_radio_loading:
+            //                     return Text("Loading stream...");
+            //                   case FlutterRadioPlayer.flutter_radio_error:
+            //                     return RaisedButton.icon(
+            //                       textColor: Colors.white,
+            //                       icon: Icon(Icons.refresh),
+            //                       label: Text("Retry Listening"),
+            //                       color: Colors.blue,
+            //                       shape: RoundedRectangleBorder(
+            //                           borderRadius: BorderRadius.all(
+            //                               Radius.circular(16.0))),
+            //                       onPressed: () async {
+            //                         await initRadioService();
+            //                       },
+            //                     );
+            //                     break;
+
+            //                     break;
+            //                   default:
+            //                     return Row(
+            //                         crossAxisAlignment:
+            //                             CrossAxisAlignment.center,
+            //                         mainAxisAlignment:
+            //                             MainAxisAlignment.spaceEvenly,
+            //                         children: <Widget>[
+            //                           RaisedButton.icon(
+            //                             textColor: Colors.black,
+            //                             icon: snapshot.data ==
+            //                                     FlutterRadioPlayer
+            //                                         .flutter_radio_playing
+            //                                 ? Icon(Icons.pause)
+            //                                 : Icon(Icons.play_arrow),
+            //                             label: snapshot.data ==
+            //                                     FlutterRadioPlayer
+            //                                         .flutter_radio_playing
+            //                                 ? Text("Pause")
+            //                                 : Text("Play"),
+            //                             color: Colors.white,
+            //                             shape: RoundedRectangleBorder(
+            //                                 borderRadius: BorderRadius.all(
+            //                                     Radius.circular(16.0))),
+            //                             onPressed: () async {
+            //                               print("button press data: " +
+            //                                   snapshot.data.toString());
+            //                               await _flutterRadioPlayer
+            //                                   .playOrPause();
+            //                             },
+            //                           ),
+            //                           RaisedButton.icon(
+                                        
+            //                             textColor: Colors.black,
+            //                             icon: Icon(Icons.stop),
+            //                             label: Text("Stop"),
+            //                             color: Colors.white,
+            //                             shape: RoundedRectangleBorder(
+                                          
+            //                                 borderRadius: BorderRadius.all(
+            //                                     Radius.circular(16.0))),
+            //                             onPressed: () async {
+            //                               print("button press data: " +
+            //                                   snapshot.data.toString());
+            //                               await _flutterRadioPlayer.stop();
+            //                             },
+            //                           ),
+            //                         ]);
+            //                     break;
+            //                 }
+            //               },
+            //             ),
+            //           )
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+
             Expanded(
               flex: 1,
               child: Container(
                 width: double.infinity,
-                // height: 200,
-                child: Card(
-                  color: Colors.blue,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-
-                      
-                      Container(
-
-                        width: double.infinity,
-                        height: 200,
-                        child: Image.asset(
-                          'assets/images/Radio.jpg',
-                          fit: BoxFit.fill
-                        ),
-                      ),
-                      Container(
-                        // height: 10,r
-                        // padding: EdgeInsets.only(top:2),
-                        child: FutureBuilder(
-                          future: songtitle(),
-                          // initialData: InitialData,
-                          builder: (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.connectionState ==
-                                      ConnectionState.waiting)
-                                    return Text("lOADING");
-
-                            if (snapshot.connectionState ==
-                                      ConnectionState
-                                          .done) if (snapshot.hasData) {
-                                            print(snapshot.data['data']);
-                                    return Text(snapshot.data['data'].toString(),style: TextStyle(color:Colors.white),);
-                            }
-                            return Text(
-                                      "Something Wrong  or No record in database");
-                          },
-                        ),
-                        
-                      ),
-                      SizedBox(height:5),
-                      Container(
-                        width: double.infinity,
-                        height: 100,
-                        child: StreamBuilder(
-                          stream: _flutterRadioPlayer.isPlayingStream,
-                          initialData: widget.playerState,
-                          builder: (BuildContext context,
-                              AsyncSnapshot<String> snapshot) {
-                            String returnData = snapshot.data;
-                            print("object data: " + returnData);
-                            switch (returnData) {
-                              case FlutterRadioPlayer.flutter_radio_stopped:
-                                return RaisedButton.icon(
-                                  textColor: Colors.white,
-                                  icon: Icon(Icons.stay_current_landscape),
-                                  label: Text("Start Listening"),
-                                  color: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(16.0))),
-                                  onPressed: () async {
-                                    await initRadioService();
-                                  },
-                                );
-                                break;
-                              case FlutterRadioPlayer.flutter_radio_loading:
-                                return Text("Loading stream...");
-                              case FlutterRadioPlayer.flutter_radio_error:
-                                return RaisedButton.icon(
-                                  textColor: Colors.white,
-                                  icon: Icon(Icons.refresh),
-                                  label: Text("Retry Listening"),
-                                  color: Colors.blue,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(16.0))),
-                                  onPressed: () async {
-                                    await initRadioService();
-                                  },
-                                );
-                                break;
-
-                                break;
-                              default:
-                                return Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: <Widget>[
-                                      RaisedButton.icon(
-                                        textColor: Colors.black,
-                                        icon: snapshot.data ==
-                                                FlutterRadioPlayer
-                                                    .flutter_radio_playing
-                                            ? Icon(Icons.pause)
-                                            : Icon(Icons.play_arrow),
-                                        label: snapshot.data ==
-                                                FlutterRadioPlayer
-                                                    .flutter_radio_playing
-                                            ? Text("Pause")
-                                            : Text("Play"),
-                                        color: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0))),
-                                        onPressed: () async {
-                                          print("button press data: " +
-                                              snapshot.data.toString());
-                                          await _flutterRadioPlayer
-                                              .playOrPause();
-                                        },
-                                      ),
-                                      RaisedButton.icon(
-                                        
-                                        textColor: Colors.black,
-                                        icon: Icon(Icons.stop),
-                                        label: Text("Stop"),
-                                        color: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(16.0))),
-                                        onPressed: () async {
-                                          print("button press data: " +
-                                              snapshot.data.toString());
-                                          await _flutterRadioPlayer.stop();
-                                        },
-                                      ),
-                                    ]);
-                                break;
-                            }
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                height: 20,
+                child: Image.asset("assets/images/2.jpg", fit: BoxFit.cover),
               ),
             ),
             Expanded(
-              flex: 1,
+              flex: 7,
               child: Container(
-                  padding: EdgeInsets.only(top: 7),
+                  // decoration: imageD,
+                  padding: EdgeInsets.only(top: 100),
                   child: ListView(
                     children: [
                       Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        // crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "Advertisement",
+                            "ADVERTISEMENT",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
+                          ),
+
+                          SizedBox(
+                            height: 60,
                           ),
                           Container(
                             // flex: 1,
@@ -491,6 +471,7 @@ class _HomeState extends State<Myradio> {
                     ],
                   )),
             ),
+            
           ],
         ),
       ),
@@ -551,11 +532,11 @@ class _HomeState extends State<Myradio> {
             _currentindex = index;
           });
 
-          if (_currentindex == 2) {
+          if (_currentindex == 3) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return Myadd();
+                return Morep();
               }),
             );
           } else if (_currentindex == 0) {
@@ -567,11 +548,11 @@ class _HomeState extends State<Myradio> {
             );
             
             
-          } else if (_currentindex == 3) {
+          } else if (_currentindex == 1) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return Morep();
+                return Myradio();
               }),
             );
           }

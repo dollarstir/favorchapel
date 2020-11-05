@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:Favorchapel/adverts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-// import './model/Slide.dart';
+// import 'package:metadata_fetch/metadata_fetch.dart';// import './model/Slide.dart';
+import 'package:metadata_fetch/metadata_fetch.dart';
 
 // import './widget/slider.dart';
 import 'dart:async';
@@ -23,12 +25,10 @@ import 'package:flutter_radio_player/flutter_radio_player.dart';
 // import 'package:share/share.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 
-
-
 class Home extends StatefulWidget {
   Home({Key key}) : super(key: key);
   var playerState = FlutterRadioPlayer.flutter_radio_playing;
-var volume = 0.8;
+  var volume = 0.8;
 
   _HomeState createState() => _HomeState();
 }
@@ -36,6 +36,8 @@ var volume = 0.8;
 class _HomeState extends State<Home> {
   int _currentindex = 0;
   int _currentPage = 0;
+  var myct;
+  var songtt="";
 
   PageController pageController;
 
@@ -85,24 +87,54 @@ class _HomeState extends State<Home> {
   //     FlutterRadioPlayer.flutter_radio_playing;
 
   //   }
-    
 
   // }
 
-   Future<void> _shareImageFromUrl(mypic,mymess,mytt) async {
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('AlertDialog Title'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('This is a demo alert dialog.'),
+                Text('Would you like to approve of this message?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Approve'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void mtt() async {
+    
+  }
+
+  Future<void> _shareImageFromUrl(mypic, mymess, mytt) async {
     try {
-      var request = await HttpClient().getUrl(Uri.parse(
-          'https://favorchapel.dollarstir.com/upload/$mypic'));
+      var request = await HttpClient().getUrl(
+          Uri.parse('http://radio.favorchapel.com/upload/$mypic'));
       var response = await request.close();
-      var  bytes = await consolidateHttpClientResponseBytes(response);
-      await Share.file('$mytt', '$mypic', bytes, '*/*',text: mymess);
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      await Share.file('$mytt', '$mypic', bytes, '*/*', text: mymess);
     } catch (e) {
       print('error: $e');
     }
   }
 
-
-   Future<void> _shareText() async {
+  Future<void> _shareText() async {
     try {
       Share.text('my text title',
           'This is my text to share with other applications.', 'text/plain');
@@ -111,29 +143,31 @@ class _HomeState extends State<Home> {
     }
   }
 
-
-
   FlutterRadioPlayer _flutterRadioPlayer = new FlutterRadioPlayer();
 
   Future<void> initRadioService() async {
     try {
-      await _flutterRadioPlayer.init("Favor Radio", "Live",
-          "http://stream.zeno.fm/k5mryscq3a0uv", "false");
+      await _flutterRadioPlayer.init(
+        "Favor Radio",
+        "Live",
+        "http://stream.zeno.fm/k5mryscq3a0uv",
+        "false",
+      );
     } on PlatformException {
       print("Exception occurred while trying to register the services.");
     }
   }
 
+  void autostart() async {
+    await _flutterRadioPlayer.play();
+  }
 
-void autostart()async{
-  await _flutterRadioPlayer.play();
-}
   @override
   void initState() {
     super.initState();
     initRadioService();
     autostart();
-    
+    songtitle();
 
     pageController = PageController(
       initialPage: 0,
@@ -159,18 +193,28 @@ void autostart()async{
 
   _onPageChnaged(int index) {
     // setState(() {
-      _currentPage = index;
+    _currentPage = index;
     // });
   }
 
   Future apiCall() async {
-    http.Response response = await http.get("https://favorchapel.dollarstir.com/api.php");
+    http.Response response =
+        await http.get("http://radio.favorchapel.com/api.php");
     return json.decode(response.body);
   }
 
+  
+  Future songtitle() async {
+    http.Response response =
+        await http.get("http://radio.favorchapel.com/stream.php");
+        var rtt= json.decode(response.body);
+        
+    return json.decode(response.body);
+  }
 
   Future verseCall() async {
-    http.Response response = await http.get("https://favorchapel.dollarstir.com/verse.php");
+    http.Response response =
+        await http.get("http://radio.favorchapel.com/verse.php");
     return json.decode(response.body);
   }
 
@@ -193,17 +237,14 @@ void autostart()async{
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
-
                         width: double.infinity,
-                        height: 200,
-                        child: Image.asset(
-                          'assets/images/Radio.jpg',
-                          fit: BoxFit.fill
-                        ),
+                        height: 100,
+                        child: Image.asset('assets/images/Radio.jpg',
+                            fit: BoxFit.fill),
                       ),
                       Container(
                         width: double.infinity,
-                        height: 100,
+                        height: 50,
                         child: StreamBuilder(
                           stream: _flutterRadioPlayer.isPlayingStream,
                           initialData: widget.playerState,
@@ -268,20 +309,20 @@ void autostart()async{
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(16.0))),
                                         onPressed: () async {
+                                          print(songtt);
                                           print("button press data: " +
                                               snapshot.data.toString());
                                           await _flutterRadioPlayer
                                               .playOrPause();
+                                          // RRR
                                         },
                                       ),
                                       RaisedButton.icon(
-                                        
                                         textColor: Colors.black,
                                         icon: Icon(Icons.stop),
                                         label: Text("Stop"),
                                         color: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(16.0))),
                                         onPressed: () async {
@@ -302,7 +343,7 @@ void autostart()async{
               ),
             ),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Container(
                   padding: EdgeInsets.only(top: 7),
                   child: ListView(
@@ -320,27 +361,31 @@ void autostart()async{
                             // flex: 1,
                             height: 200,
                             child: FutureBuilder(
-                              future: apiCall(),
-                              builder: (context, AsyncSnapshot snapshot) {
-                                if(snapshot.connectionState == ConnectionState.waiting)
-                                  return Text("lOADING");
+                                future: apiCall(),
+                                builder: (context, AsyncSnapshot snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting)
+                                    return Text("lOADING");
 
-                                if(snapshot.connectionState == ConnectionState.done)
-                                  if(snapshot.hasData) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState
+                                          .done) if (snapshot.hasData) {
                                     List images = snapshot.data;
-                                    
+
                                     return PageView.builder(
                                       controller: pageController,
                                       onPageChanged: _onPageChnaged,
                                       itemCount: images.length,
                                       itemBuilder: (context, position) {
-                                        return imageSlider(position, images[position]);
+                                        return imageSlider(
+                                            position, images[position]);
                                       },
                                     );
                                   }
-                                return Text("Something Wrong  or No record in database");
-                              }
-                            ),
+                                  return Text(
+                                      "Something Wrong  or No record in database");
+                                }
+                                ),
                           ),
                           SizedBox(
                             height: 10,
@@ -356,139 +401,231 @@ void autostart()async{
                             // flex: 1,
 
                             child: Center(
-                              child:FutureBuilder(
-                                future: verseCall(),
-                                builder: (context, snapshot) {
-                                  if(snapshot.connectionState == ConnectionState.waiting)
-                                    return Text("lOADING");
+                                child: FutureBuilder(
+                              future: verseCall(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting)
+                                  return Text("lOADING");
 
+                                if (snapshot.connectionState ==
+                                    ConnectionState
+                                        .done) if (snapshot.hasData) {
+                                  List images = snapshot.data;
 
-                                  if(snapshot.connectionState == ConnectionState.done)
-                                    if(snapshot.hasData) {
-                                      List images = snapshot.data;
-                                      
-                                      return   SizedBox(
-                                height: Curves.easeInOut.transform(1) * 400,
-                                width: Curves.easeInOut.transform(1) *
-                                    double.infinity,
-                                child: Container(
-                                  margin: EdgeInsets.all(5),
-                                  child: Card(
-                                    elevation: 15,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          width: double.infinity,
-                                          height: 200,
-                                          child: Image.network("https://favorchapel.dollarstir.com/upload/"+ snapshot.data[0]['vpic'],
-                                            fit: BoxFit.fill,
-                                            errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
-                                            ),
-                                        ),
-                                        // SizedBox(height: 5,),
-
-                                        Text(
-                                          snapshot.data[0]['dateadded'],
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.red,
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-
-                                        Text(
-                                          snapshot.data[0]['vtitle'],
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-
-                                        Container(
-                                          padding: EdgeInsets.only(left: 10,right: 10),
-                                          child: Text(
-                                              snapshot.data[0]['vdetail']),
-                                        ),
-
-                                        // RaisedButton(
-                                        //   onPressed: () {},
-                                        //   shape: RoundedRectangleBorder(
-                                        //       borderRadius: BorderRadius.circular(80.0)),
-                                        //   padding: const EdgeInsets.all(0.0),
-                                        //   child: Ink(
-                                        //     decoration: const BoxDecoration(
-                                        //       gradient: LinearGradient(
-                                        //         colors: <Color>[
-                                        //           Color(0xFF0D47A1),
-                                        //           Color(0xFF1976D2),
-                                        //           Color(0xFF42A5F5),
-                                        //         ],
-                                        //       ),
-                                        //       borderRadius: BorderRadius.all(Radius.circular(80.0)),
-                                        //     ),
-                                        //     child: Container(
-                                        //       constraints: const BoxConstraints(
-                                        //           minWidth: 80.0,
-                                        //           minHeight: 36.0), // min sizes for Material buttons
-                                        //       alignment: Alignment.center,
-                                        //       child: const Text(
-                                        //         'Read Now',
-                                        //         textAlign: TextAlign.center,
-                                        //         style: TextStyle(color: Colors.white),
-                                        //       ),
-                                        //     ),
-                                        //   ),
-                                        // )
-
-                                        Container(
-                                          child: Row(
-                                            children: [
-                                              RaisedButton.icon(
-                                                onPressed: () async{
-                                                  var mymess= "FAVOR CHAPEL INTERNATIONAL\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'];
-                                                  // Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
-                                                  // subject: snapshot.data[0]['vtitle']);
-                                                  var mpp = snapshot.data[0]['vpic'];
-                                                  var mytt= snapshot.data[0]['vtitle'];
-                                                  // Share.shareFiles(["https://favorchapel.dollarstir.com/upload/${snapshot.data[0]['vpic']}"],subject: snapshot.data[0]['vtitle'],text:"FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'] );
-                                                    //   var request = await HttpClient().getUrl((Uri.parse('https://shop.esys.eu/media/image/6f/8f/af/amlog_transport-berwachung.jpg')));
-                                                    //  var response = await request.close();
-                                                    //   var  bytes = await consolidateHttpClientResponseBytes(response);
-                                                    // await Share.file('ESYS AMLOG', 'amlog.jpg', bytes, 'image/jpg');'
-
-                                                    await _shareImageFromUrl(mpp,mymess,mytt);
+                                  return SizedBox(
+                                    // height: Curves.easeInOut.transform(1) * 400,
+                                    width: Curves.easeInOut.transform(1) *
+                                        double.infinity,
+                                    child: Container(
+                                      margin: EdgeInsets.all(5),
+                                      child: Card(
+                                        elevation: 15,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              width: double.infinity,
+                                              height: 200,
+                                              child: Material(
+                                                  child: InkWell(
+                                                onTap: () async {
+                                                  return showDialog<void>(
+                                                    context: context,
+                                                    barrierDismissible:
+                                                        false, // user must tap button!
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          RaisedButton(
+                                                            child: Icon(Icons.close,color: Colors.red,),
+                                                            color: Colors.transparent,
+                                                            onPressed: () {
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                            },
+                                                          ),
+                                                          Container(
+                                                           
+                                                            child:
+                                                                Image.network(
+                                                              "http://radio.favorchapel.com/upload/" +
+                                                                  snapshot.data[
+                                                                          0]
+                                                                      ['vpic'],
+                                                              fit: BoxFit.fill,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                      // AlertDialog(
+                                                      //   title: Text(
+                                                      //       'Hello  Title'),
+                                                      //   content: Expanded(
+                                                      //     child: Image.network(
+                                                      //       "https://favorchapel.dollarstir.com/upload/" +
+                                                      //           snapshot.data[0]
+                                                      //               ['vpic'],
+                                                      //       fit: BoxFit.fill,
+                                                      //     ),
+                                                      //   ),
+                                                      //   actions: <Widget>[
+                                                      //     TextButton(
+                                                      //       child: Icon(
+                                                      //         Icons.close,
+                                                      //       ),
+                                                      //       onPressed: () {
+                                                      //         Navigator.of(
+                                                      //                 context)
+                                                      //             .pop();
+                                                      //       },
+                                                      //     ),
+                                                      //   ],
+                                                      // );
+                                                    },
+                                                  );
                                                 },
-                                                color: Colors.transparent,
-                                                disabledColor:
-                                                    Colors.transparent,
-                                                icon: Icon(
-                                                  Icons.share,
-                                                  color: Colors.blue,
-                                                ),
-                                                label: Text(
-                                                  "Share",
-                                                  style: TextStyle(
-                                                    color: Colors.blue,
+                                                child: Container(
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20.0),
+                                                    child: Image.network(
+                                                      "http://radio.favorchapel.com/upload/" +
+                                                          snapshot.data[0]
+                                                              ['vpic'],
+                                                      fit: BoxFit.fill,
+                                                      errorBuilder: (context,
+                                                              error,
+                                                              stackTrace) =>
+                                                          Icon(Icons.error),
+                                                      loadingBuilder: (context,
+                                                              child,
+                                                              loadingProgress) =>
+                                                          loadingProgress !=
+                                                                  null
+                                                              ? Center(
+                                                                  child:
+                                                                      CircularProgressIndicator())
+                                                              : child,
+                                                    ),
                                                   ),
                                                 ),
-                                              )
-                                            ],
-                                          ),
+                                              )),
+                                            ),
+                                            // SizedBox(height: 5,),
+
+                                            Text(
+                                              snapshot.data[0]['dateadded'],
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.red,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+
+                                            Text(
+                                              snapshot.data[0]['vtitle'],
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+
+                                            Container(
+                                              padding: EdgeInsets.only(
+                                                  left: 10, right: 10),
+                                              child: Text(
+                                                  snapshot.data[0]['vdetail']),
+                                            ),
+
+                                            // RaisedButton(
+                                            //   onPressed: () {},
+                                            //   shape: RoundedRectangleBorder(
+                                            //       borderRadius: BorderRadius.circular(80.0)),
+                                            //   padding: const EdgeInsets.all(0.0),
+                                            //   child: Ink(
+                                            //     decoration: const BoxDecoration(
+                                            //       gradient: LinearGradient(
+                                            //         colors: <Color>[
+                                            //           Color(0xFF0D47A1),
+                                            //           Color(0xFF1976D2),
+                                            //           Color(0xFF42A5F5),
+                                            //         ],
+                                            //       ),
+                                            //       borderRadius: BorderRadius.all(Radius.circular(80.0)),
+                                            //     ),
+                                            //     child: Container(
+                                            //       constraints: const BoxConstraints(
+                                            //           minWidth: 80.0,
+                                            //           minHeight: 36.0), // min sizes for Material buttons
+                                            //       alignment: Alignment.center,
+                                            //       child: const Text(
+                                            //         'Read Now',
+                                            //         textAlign: TextAlign.center,
+                                            //         style: TextStyle(color: Colors.white),
+                                            //       ),
+                                            //     ),
+                                            //   ),
+                                            // )
+
+                                            Container(
+                                              child: Row(
+                                                children: [
+                                                  RaisedButton.icon(
+                                                    onPressed: () async {
+                                                      var mymess =
+                                                          "FAVOR CHAPEL INTERNATIONAL\n \nBible verse of the day\n \n" +
+                                                              snapshot.data[0]
+                                                                  ['vtitle'] +
+                                                              ' \n' +
+                                                              snapshot.data[0]
+                                                                  ['vdetail'];
+                                                      // Share.share("FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'],
+                                                      // subject: snapshot.data[0]['vtitle']);
+                                                      var mpp = snapshot.data[0]
+                                                          ['vpic'];
+                                                      var mytt = snapshot
+                                                          .data[0]['vtitle'];
+                                                      // Share.shareFiles(["https://favorchapel.dollarstir.com/upload/${snapshot.data[0]['vpic']}"],subject: snapshot.data[0]['vtitle'],text:"FAVOR RADIO\n \nBile verse of the day\n \n" + snapshot.data[0]['vtitle']+ ' \n' + snapshot.data[0]['vdetail'] );
+                                                      //   var request = await HttpClient().getUrl((Uri.parse('https://shop.esys.eu/media/image/6f/8f/af/amlog_transport-berwachung.jpg')));
+                                                      //  var response = await request.close();
+                                                      //   var  bytes = await consolidateHttpClientResponseBytes(response);
+                                                      // await Share.file('ESYS AMLOG', 'amlog.jpg', bytes, 'image/jpg');'
+
+                                                      await _shareImageFromUrl(
+                                                          mpp, mymess, mytt);
+                                                    },
+                                                    color: Colors.transparent,
+                                                    disabledColor:
+                                                        Colors.transparent,
+                                                    icon: Icon(
+                                                      Icons.share,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    label: Text(
+                                                      "Share",
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
-                                    }
-                                  return Text("Something Wrong  or No record in database");
-                                
-                                  
-                                },
-                              )
-                            ),
+                                  );
+                                }
+                                return Text(
+                                    "Something Wrong  or No record in database");
+                              },
+                            )),
                           )
                         ],
                       ),
@@ -523,6 +660,16 @@ void autostart()async{
           ),
 
           BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_business,
+            ),
+            title: Text(
+              "Adverts",
+            ),
+            backgroundColor: Colors.blue,
+          ),
+
+          BottomNavigationBarItem(
             icon: Icon(Icons.apps),
             title: Text(
               "More",
@@ -551,7 +698,7 @@ void autostart()async{
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return Morep();
+                return Myadd();
               }),
             );
           } else if (_currentindex == 1) {
@@ -565,7 +712,7 @@ void autostart()async{
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return;
+                return Morep();
               }),
             );
           }
@@ -593,7 +740,8 @@ void autostart()async{
         );
       },
       child: Container(
-        margin: EdgeInsets.all(5),
+        margin: EdgeInsets.all(2),
+
         child: Card(
           elevation: 15,
           child: Column(
@@ -603,56 +751,83 @@ void autostart()async{
                 height: 110,
                 width: double.infinity,
                 child: Image.network(
-                "https://favorchapel.dollarstir.com/upload/${details['pic']}", 
-                fit: BoxFit.fill,
-                
-                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
-              ),
+                  "http://radio.favorchapel.com/upload/${details['pic']}",
+                  fit: BoxFit.fill,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.error),
+                  loadingBuilder: (context, child, loadingProgress) =>
+                      loadingProgress != null
+                          ? Center(child: CircularProgressIndicator())
+                          : child,
+                ),
               ),
               // SizedBox(height: 5,),
 
               Text("${details['title']}"),
               Container(
-                width: 150,
-                child: RaisedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context){
-                    return Pdetail(item: details);
-                  }));
-                },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0)),
-                padding: const EdgeInsets.all(0.0),
-                child: Ink(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: <Color>[
-                        Color(0xFF0D47A1),
-                        Color(0xFF1976D2),
-                        Color(0xFF42A5F5),
-                      ],
+                  width: 150,
+                  child: RaisedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Pdetail(item: details);
+                      }));
+                    },
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(80.0)),
+                    padding: const EdgeInsets.all(0.0),
+                    child: Ink(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Color(0xFF0D47A1),
+                            Color(0xFF1976D2),
+                            Color(0xFF42A5F5),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(80.0)),
+                      ),
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            minWidth: 80.0,
+                            minHeight: 36.0), // min sizes for Material buttons
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Read Now',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(80.0)),
-                  ),
-                  child: Container(
-                    constraints: const BoxConstraints(
-                        minWidth: 80.0,
-                        minHeight: 36.0), // min sizes for Material buttons
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Read Now',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              )
-              ),
+                  )),
             ],
           ),
         ),
+
+        // decoration: BoxDecoration(
+        //    borderRadius: BorderRadius.circular(80.0)),
+        // ),
       ),
     );
   }
 }
+
+// class ImageDialog extends StatelessWidget {
+//   final Map item;
+
+//   ImageDialog({this.item});
+//   @override
+//   Widget build(BuildContext context) {
+//     return Dialog(
+//       child: Container(
+//         width: 200,
+//         height: 200,
+//         decoration: BoxDecoration(
+//             image: DecorationImage(
+//                 image: NetworkImage(
+//                     "https://favorchapel.dollarstir.com/upload/${this.item['pic']}"),
+//                 fit: BoxFit.cover)),
+//       ),
+//     );
+//   }
+// }

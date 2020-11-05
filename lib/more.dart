@@ -1,4 +1,5 @@
 
+import 'package:Favorchapel/adverts.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import './home.dart';
@@ -19,11 +20,11 @@ class Morep extends StatefulWidget {
 }
 
 class _MorepState extends State<Morep> {
-  int _currentindex = 2;
+  int _currentindex = 3;
 
 
   _launchURL() async {
-  const url = 'https://paystack.com/pay/3cc3u-3o6a';
+  const url = 'https://radio.favorchapel.com/donate.php';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
@@ -569,6 +570,14 @@ _mail() async {
           ),
 
           BottomNavigationBarItem(
+            icon: Icon(Icons.add_business,),
+            title: Text(
+              "Adverts",
+            ),
+            backgroundColor: Colors.blue,
+          ),
+
+          BottomNavigationBarItem(
             icon: Icon(Icons.apps),
             title: Text(
               "More",
@@ -607,11 +616,11 @@ _mail() async {
                 return Myradio();
               }),
             );
-          } else if (_currentindex == 3) {
+          } else if (_currentindex == 2) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) {
-                return;
+                return Myadd();
               }),
             );
           }
