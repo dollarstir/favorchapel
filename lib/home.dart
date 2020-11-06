@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
   var songtt="";
 
   PageController pageController;
+  ValueNotifier<Future> songTitleFuture = ValueNotifier(null);
 
   // int _currentPage = 0;
   // final PageController _pageController = PageController(
@@ -162,19 +163,33 @@ class _HomeState extends State<Home> {
     await _flutterRadioPlayer.play();
   }
 
+  Future  _future;
+
+   var currentplay="Unknow artist";
+
+   setUpTimedFetch()async {
+   new  Timer.periodic(Duration(milliseconds: 30000), (timer) {
+     songTitleFuture.value = songtitle();
+      // setState(() {
+      //   _future = songtitle();
+      // });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     initRadioService();
     autostart();
-    songtitle();
+    setUpTimedFetch();
+    // songtitle();
 
     pageController = PageController(
       initialPage: 0,
       viewportFraction: 0.6,
     );
 
-    Timer.periodic(Duration(seconds: 15), (Timer timer) {
+    Timer.periodic(Duration(seconds: 7), (Timer timer) {
       if (_currentPage < 3) {
         _currentPage++;
       } else {
@@ -232,16 +247,67 @@ class _HomeState extends State<Home> {
                 width: double.infinity,
                 // height: 200,
                 child: Card(
-                  color: Colors.blue,
+                  // color: Colors.blue,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Container(
                         width: double.infinity,
-                        height: 100,
+                        height: 150,
                         child: Image.asset('assets/images/Radio.jpg',
                             fit: BoxFit.fill),
                       ),
+
+                      Container(
+                        // height: 10,r
+                        // padding: EdgeInsets.only(top:2),
+                        child:ValueListenableBuilder<Future>(
+                          valueListenable: songTitleFuture,
+                          builder: (context, value, child) => FutureBuilder(
+                            future: value,
+                            // initialData: InitialData,
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting)
+                                return Text(currentplay,
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 12,
+                                    ));
+
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) if (snapshot.hasData) {
+                                if (snapshot.data == "false") {
+                                  print(snapshot.data['data']);
+                                  // currentplay = snapshot.data['data'].toString();
+                                  return Text(currentplay,
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 12,
+                                      ));
+                                } else {
+                                  print(snapshot.data['data']);
+                                  currentplay =
+                                      snapshot.data['data'].toString();
+                                  return Text(snapshot.data['data'].toString(),
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 12,
+                                      ));
+                                }
+                              }
+                              return Text("unknown artist",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 12,
+                                  ));
+                            },
+                          ),
+                        ),
+                        
+                      ),
+                      SizedBox(height:5),
                       Container(
                         width: double.infinity,
                         height: 50,
@@ -343,7 +409,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: 1,
               child: Container(
                   padding: EdgeInsets.only(top: 7),
                   child: ListView(
@@ -740,7 +806,7 @@ class _HomeState extends State<Home> {
         );
       },
       child: Container(
-        margin: EdgeInsets.all(2),
+        // margin: EdgeInsets.all(2),
 
         child: Card(
           elevation: 15,

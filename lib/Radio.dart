@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
 import 'package:share/share.dart';
 import './home.dart';
+// import 'package:marquee/marquee.dart';
 
 
 class Myradio extends StatefulWidget {
@@ -36,6 +37,10 @@ class _HomeState extends State<Myradio> {
   int _currentPage = 0;
 
   PageController pageController;
+  ValueNotifier<Future> songTitleFuture = ValueNotifier(null);
+
+  
+
 
   // int _currentPage = 0;
   // final PageController _pageController = PageController(
@@ -83,11 +88,8 @@ class _HomeState extends State<Myradio> {
   //     FlutterRadioPlayer.flutter_radio_playing;
 
   //   }
-    
 
   // }
-
-
 
   FlutterRadioPlayer _flutterRadioPlayer = new FlutterRadioPlayer();
 
@@ -100,23 +102,32 @@ class _HomeState extends State<Myradio> {
     }
   }
 
-  void autostart()async{
-  await _flutterRadioPlayer.play();
-}
+  void autostart() async {
+    await _flutterRadioPlayer.play();
+  }
+
+  setUpTimedFetch() async {
+    new Timer.periodic(Duration(milliseconds: 30000), (timer) {
+      songTitleFuture.value = songtitle();
+      // setState(() {
+      //   _future = songtitle();
+      // });
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     initRadioService();
     autostart();
-    
+    setUpTimedFetch();
 
     pageController = PageController(
       initialPage: 0,
       viewportFraction: 0.6,
     );
 
-    Timer.periodic(Duration(seconds: 15), (Timer timer) {
+    new Timer.periodic(Duration(seconds: 7), (Timer timer) {
       if (_currentPage < 3) {
         _currentPage++;
       } else {
@@ -135,26 +146,31 @@ class _HomeState extends State<Myradio> {
 
   _onPageChnaged(int index) {
     // setState(() {
-      _currentPage = index;
+    _currentPage = index;
     // });
   }
+
+  Future _future;
+
+  var currentplay = "Unknow artist";
 
   Future songtitle() async {
     http.Response response =
         await http.get("http://radio.favorchapel.com/stream.php");
-        var rtt= json.decode(response.body);
-        
+    var rtt = json.decode(response.body);
+
     return json.decode(response.body);
   }
 
   Future apiCall() async {
-    http.Response response = await http.get("http://radio.favorchapel.com/ads.php");
+    http.Response response =
+        await http.get("http://radio.favorchapel.com/ads.php");
     return json.decode(response.body);
   }
 
-
   Future verseCall() async {
-    http.Response response = await http.get("https://favorchapel.dollarstir.com/verse.php");
+    http.Response response =
+        await http.get("https://favorchapel.dollarstir.com/verse.php");
     return json.decode(response.body);
   }
 
@@ -167,50 +183,95 @@ class _HomeState extends State<Myradio> {
         child: Column(
           children: [
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Container(
                 width: double.infinity,
                 // height: 200,
                 child: Card(
-                  color: Colors.blue,
+                  // color: Colors.blue,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-
-                      
                       Container(
-
                         width: double.infinity,
                         height: 200,
-                        child: Image.asset(
-                          'assets/images/Radio.jpg',
-                          fit: BoxFit.fill
-                        ),
+                        child: Image.asset('assets/images/Radio.jpg',
+                            fit: BoxFit.fill),
                       ),
                       Container(
                         // height: 10,r
                         // padding: EdgeInsets.only(top:2),
-                        child: FutureBuilder(
-                          future: songtitle(),
-                          // initialData: InitialData,
-                          builder: (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.connectionState ==
-                                      ConnectionState.waiting)
-                                    return Text("lOADING");
+                        child: ValueListenableBuilder<Future>(
+                          valueListenable: songTitleFuture,
+                          builder: (context, value, child) => FutureBuilder(
+                            future: value,
+                            // initialData: InitialData,
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting)
+                                return Text(currentplay,
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 12,
+                                    ));
 
-                            if (snapshot.connectionState ==
-                                      ConnectionState
-                                          .done) if (snapshot.hasData) {
-                                            print(snapshot.data['data']);
-                                    return Text(snapshot.data['data'].toString(),style: TextStyle(color:Colors.white),);
-                            }
-                            return Text(
-                                      "Something Wrong  or No record in database");
-                          },
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) if (snapshot.hasData) {
+                                if (snapshot.data == "false") {
+                                  print(snapshot.data['data']);
+                                  // currentplay = snapshot.data['data'].toString();
+                                  return Container(
+                                    child : Card(
+                                      elevation : 10,
+                                      color:Colors.orange[300],
+                                      child: Text(
+                                    currentplay,
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 12,
+                                    ),
+                                  )
+                                    ),
+                                  )
+                                  ;
+                                } else {
+                                  print(snapshot.data['data']);
+                                  currentplay =
+                                      snapshot.data['data'].toString();
+                                  return Container(
+                                    child: Card(
+                                      elevation: 10,
+                                       color:Colors.orange[300],
+                                      child: Text(
+                                        snapshot.data['data'].toString(),
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                              return Container(
+                                child: Card(
+                                    color: Colors.orange[300],
+                                    elevation: 10,
+                                    //  color:Colors.orange[300],
+                                    child: Text(
+                                      "unknown artist",
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 12,
+                                      ),
+                                    )),
+                              );
+                            },
+                          ),
                         ),
-                        
                       ),
-                      SizedBox(height:5),
+                      SizedBox(height: 5),
                       Container(
                         width: double.infinity,
                         height: 100,
@@ -233,6 +294,7 @@ class _HomeState extends State<Myradio> {
                                           Radius.circular(16.0))),
                                   onPressed: () async {
                                     await initRadioService();
+                                    // playHandler();
                                   },
                                 );
                                 break;
@@ -285,13 +347,11 @@ class _HomeState extends State<Myradio> {
                                         },
                                       ),
                                       RaisedButton.icon(
-                                        
                                         textColor: Colors.black,
                                         icon: Icon(Icons.stop),
                                         label: Text("Stop"),
                                         color: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(16.0))),
                                         onPressed: () async {
@@ -330,162 +390,163 @@ class _HomeState extends State<Myradio> {
                             // flex: 1,
                             height: 200,
                             child: FutureBuilder(
-                              future: apiCall(),
-                              builder: (context, AsyncSnapshot snapshot) {
-                                if(snapshot.connectionState == ConnectionState.waiting)
-                                  return Text("lOADING");
+                                future: apiCall(),
+                                builder: (context, AsyncSnapshot snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting)
+                                    return Text("lOADING");
 
-                                if(snapshot.connectionState == ConnectionState.done)
-                                  if(snapshot.hasData) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState
+                                          .done) if (snapshot.hasData) {
                                     List images = snapshot.data;
-                                    
+
                                     return PageView.builder(
                                       controller: pageController,
                                       onPageChanged: _onPageChnaged,
                                       itemCount: images.length,
                                       itemBuilder: (context, position) {
-                                        return imageSlider(position, images[position]);
+                                        return imageSlider(
+                                            position, images[position]);
                                       },
                                     );
                                   }
-                                return Text("Something Wrong  or No record in database");
-                              }
-                            ),
+                                  return Text(
+                                      "Something Wrong  or No record in database");
+                                }),
                           ),
                           SizedBox(
                             height: 10,
                           ),
-                //           Text(
-                //             "Verse of The Day",
-                //             style: TextStyle(
-                //               fontSize: 18,
-                //               fontWeight: FontWeight.bold,
-                //             ),
-                //           ),
-                //           Container(
-                //             // flex: 1,
+                          //           Text(
+                          //             "Verse of The Day",
+                          //             style: TextStyle(
+                          //               fontSize: 18,
+                          //               fontWeight: FontWeight.bold,
+                          //             ),
+                          //           ),
+                          //           Container(
+                          //             // flex: 1,
 
-                //             child: Center(
-                //               child:FutureBuilder(
-                //                 future: verseCall(),
-                //                 builder: (context, snapshot) {
-                //                   if(snapshot.connectionState == ConnectionState.waiting)
-                //                     return Text("lOADING");
+                          //             child: Center(
+                          //               child:FutureBuilder(
+                          //                 future: verseCall(),
+                          //                 builder: (context, snapshot) {
+                          //                   if(snapshot.connectionState == ConnectionState.waiting)
+                          //                     return Text("lOADING");
 
+                          //                   if(snapshot.connectionState == ConnectionState.done)
+                          //                     if(snapshot.hasData) {
+                          //                       List images = snapshot.data;
 
-                //                   if(snapshot.connectionState == ConnectionState.done)
-                //                     if(snapshot.hasData) {
-                //                       List images = snapshot.data;
-                                      
-                //                       return   SizedBox(
-                //                 height: Curves.easeInOut.transform(1) * 400,
-                //                 width: Curves.easeInOut.transform(1) *
-                //                     double.infinity,
-                //                 child: Container(
-                //                   margin: EdgeInsets.all(5),
-                //                   child: Card(
-                //                     elevation: 15,
-                //                     child: Column(
-                //                       mainAxisAlignment:
-                //                           MainAxisAlignment.spaceBetween,
-                //                       children: [
-                //                         Image.network("http://radio.favorchapel.com/upload/"+ snapshot.data[0]['vpic'],
-                //                             fit: BoxFit.cover,
-                //                             errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                // loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
-                //                             ),
-                //                         // SizedBox(height: 5,),
+                          //                       return   SizedBox(
+                          //                 height: Curves.easeInOut.transform(1) * 400,
+                          //                 width: Curves.easeInOut.transform(1) *
+                          //                     double.infinity,
+                          //                 child: Container(
+                          //                   margin: EdgeInsets.all(5),
+                          //                   child: Card(
+                          //                     elevation: 15,
+                          //                     child: Column(
+                          //                       mainAxisAlignment:
+                          //                           MainAxisAlignment.spaceBetween,
+                          //                       children: [
+                          //                         Image.network("http://radio.favorchapel.com/upload/"+ snapshot.data[0]['vpic'],
+                          //                             fit: BoxFit.cover,
+                          //                             errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                          // loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
+                          //                             ),
+                          //                         // SizedBox(height: 5,),
 
-                //                         Text(
-                //                           snapshot.data[0]['dateadded'],
-                //                           style: TextStyle(
-                //                             fontSize: 10,
-                //                             color: Colors.red,
-                //                           ),
-                //                           textAlign: TextAlign.left,
-                //                         ),
+                          //                         Text(
+                          //                           snapshot.data[0]['dateadded'],
+                          //                           style: TextStyle(
+                          //                             fontSize: 10,
+                          //                             color: Colors.red,
+                          //                           ),
+                          //                           textAlign: TextAlign.left,
+                          //                         ),
 
-                //                         Text(
-                //                           snapshot.data[0]['vtitle'],
-                //                           style: TextStyle(
-                //                             fontWeight: FontWeight.bold,
-                //                           ),
-                //                         ),
+                          //                         Text(
+                          //                           snapshot.data[0]['vtitle'],
+                          //                           style: TextStyle(
+                          //                             fontWeight: FontWeight.bold,
+                          //                           ),
+                          //                         ),
 
-                //                         Container(
-                //                           padding: EdgeInsets.only(left: 10,right: 10),
-                //                           child: Text(
-                //                               snapshot.data[0]['vdetail']),
-                //                         ),
+                          //                         Container(
+                          //                           padding: EdgeInsets.only(left: 10,right: 10),
+                          //                           child: Text(
+                          //                               snapshot.data[0]['vdetail']),
+                          //                         ),
 
-                //                         // RaisedButton(
-                //                         //   onPressed: () {},
-                //                         //   shape: RoundedRectangleBorder(
-                //                         //       borderRadius: BorderRadius.circular(80.0)),
-                //                         //   padding: const EdgeInsets.all(0.0),
-                //                         //   child: Ink(
-                //                         //     decoration: const BoxDecoration(
-                //                         //       gradient: LinearGradient(
-                //                         //         colors: <Color>[
-                //                         //           Color(0xFF0D47A1),
-                //                         //           Color(0xFF1976D2),
-                //                         //           Color(0xFF42A5F5),
-                //                         //         ],
-                //                         //       ),
-                //                         //       borderRadius: BorderRadius.all(Radius.circular(80.0)),
-                //                         //     ),
-                //                         //     child: Container(
-                //                         //       constraints: const BoxConstraints(
-                //                         //           minWidth: 80.0,
-                //                         //           minHeight: 36.0), // min sizes for Material buttons
-                //                         //       alignment: Alignment.center,
-                //                         //       child: const Text(
-                //                         //         'Read Now',
-                //                         //         textAlign: TextAlign.center,
-                //                         //         style: TextStyle(color: Colors.white),
-                //                         //       ),
-                //                         //     ),
-                //                         //   ),
-                //                         // )
+                          //                         // RaisedButton(
+                          //                         //   onPressed: () {},
+                          //                         //   shape: RoundedRectangleBorder(
+                          //                         //       borderRadius: BorderRadius.circular(80.0)),
+                          //                         //   padding: const EdgeInsets.all(0.0),
+                          //                         //   child: Ink(
+                          //                         //     decoration: const BoxDecoration(
+                          //                         //       gradient: LinearGradient(
+                          //                         //         colors: <Color>[
+                          //                         //           Color(0xFF0D47A1),
+                          //                         //           Color(0xFF1976D2),
+                          //                         //           Color(0xFF42A5F5),
+                          //                         //         ],
+                          //                         //       ),
+                          //                         //       borderRadius: BorderRadius.all(Radius.circular(80.0)),
+                          //                         //     ),
+                          //                         //     child: Container(
+                          //                         //       constraints: const BoxConstraints(
+                          //                         //           minWidth: 80.0,
+                          //                         //           minHeight: 36.0), // min sizes for Material buttons
+                          //                         //       alignment: Alignment.center,
+                          //                         //       child: const Text(
+                          //                         //         'Read Now',
+                          //                         //         textAlign: TextAlign.center,
+                          //                         //         style: TextStyle(color: Colors.white),
+                          //                         //       ),
+                          //                         //     ),
+                          //                         //   ),
+                          //                         // )
 
-                //                         Container(
-                //                           child: Row(
-                //                             children: [
-                //                               RaisedButton.icon(
-                //                                 onPressed: () {
-                //                                   Share.share(snapshot.data[0]['vdetail'],
-                //                                   subject: snapshot.data[0]['vtitle']);
-                //                                 },
-                //                                 color: Colors.transparent,
-                //                                 disabledColor:
-                //                                     Colors.transparent,
-                //                                 icon: Icon(
-                //                                   Icons.share,
-                //                                   color: Colors.blue,
-                //                                 ),
-                //                                 label: Text(
-                //                                   "Share",
-                //                                   style: TextStyle(
-                //                                     color: Colors.blue,
-                //                                   ),
-                //                                 ),
-                //                               )
-                //                             ],
-                //                           ),
-                //                         ),
-                //                       ],
-                //                     ),
-                //                   ),
-                //                 ),
-                //               );
-                //                     }
-                //                   return Text("eRROR");
-                                
-                                  
-                //                 },
-                //               )
-                //             ),
-                //           )
+                          //                         Container(
+                          //                           child: Row(
+                          //                             children: [
+                          //                               RaisedButton.icon(
+                          //                                 onPressed: () {
+                          //                                   Share.share(snapshot.data[0]['vdetail'],
+                          //                                   subject: snapshot.data[0]['vtitle']);
+                          //                                 },
+                          //                                 color: Colors.transparent,
+                          //                                 disabledColor:
+                          //                                     Colors.transparent,
+                          //                                 icon: Icon(
+                          //                                   Icons.share,
+                          //                                   color: Colors.blue,
+                          //                                 ),
+                          //                                 label: Text(
+                          //                                   "Share",
+                          //                                   style: TextStyle(
+                          //                                     color: Colors.blue,
+                          //                                   ),
+                          //                                 ),
+                          //                               )
+                          //                             ],
+                          //                           ),
+                          //                         ),
+                          //                       ],
+                          //                     ),
+                          //                   ),
+                          //                 ),
+                          //               );
+                          //                     }
+                          //                   return Text("eRROR");
+
+                          //                 },
+                          //               )
+                          //             ),
+                          //           )
                         ],
                       ),
                     ],
@@ -518,8 +579,10 @@ class _HomeState extends State<Myradio> {
             backgroundColor: Colors.blue,
           ),
 
-           BottomNavigationBarItem(
-            icon: Icon(Icons.add_business,),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_business,
+            ),
             title: Text(
               "Adverts",
             ),
@@ -565,8 +628,6 @@ class _HomeState extends State<Myradio> {
                 return Home();
               }),
             );
-            
-            
           } else if (_currentindex == 3) {
             Navigator.push(
               context,
@@ -609,52 +670,55 @@ class _HomeState extends State<Myradio> {
                 height: 110,
                 width: double.infinity,
                 child: Image.network(
-                "http://radio.favorchapel.com/upload/${details['pic']}", 
-                fit: BoxFit.fill,
-                
-                errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-                loadingBuilder: (context, child, loadingProgress) => loadingProgress != null ? Center(child: CircularProgressIndicator()) : child,
-              ),
+                  "http://radio.favorchapel.com/upload/${details['pic']}",
+                  fit: BoxFit.fill,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.error),
+                  loadingBuilder: (context, child, loadingProgress) =>
+                      loadingProgress != null
+                          ? Center(child: CircularProgressIndicator())
+                          : child,
+                ),
               ),
               // SizedBox(height: 5,),
 
               Text("${details['title']}"),
               Container(
-                width: 150,
-                child: RaisedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context){
-                    return Pdetail(item: details);
-                  }));
-                },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0)),
-                padding: const EdgeInsets.all(0.0),
-                child: Ink(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: <Color>[
-                        Color(0xFF0D47A1),
-                        Color(0xFF1976D2),
-                        Color(0xFF42A5F5),
-                      ],
+                  width: 150,
+                  child: RaisedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Pdetail(item: details);
+                      }));
+                    },
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(80.0)),
+                    padding: const EdgeInsets.all(0.0),
+                    child: Ink(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: <Color>[
+                            Color(0xFF0D47A1),
+                            Color(0xFF1976D2),
+                            Color(0xFF42A5F5),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(80.0)),
+                      ),
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            minWidth: 80.0,
+                            minHeight: 36.0), // min sizes for Material buttons
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Read Now',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(80.0)),
-                  ),
-                  child: Container(
-                    constraints: const BoxConstraints(
-                        minWidth: 80.0,
-                        minHeight: 36.0), // min sizes for Material buttons
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Read Now',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              )
-              ),
+                  )),
             ],
           ),
         ),
