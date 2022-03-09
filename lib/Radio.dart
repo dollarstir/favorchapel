@@ -7,11 +7,14 @@ import 'package:flutter/material.dart';
 
 // import './widget/slider.dart';
 import 'dart:async';
+
 // import './slidedot.dart';
+
 
 // import 'package:carousel_slider/carousel_controller.dart';
 // import 'package:carousel_slider/carousel_options.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
+// 
 import './Radio.dart';
 import './more.dart';
 import 'package:http/http.dart' as http;
@@ -20,8 +23,11 @@ import './detail.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
 import 'package:share/share.dart';
+
 import './home.dart';
+
 // import 'package:marquee/marquee.dart';
+
 
 
 class Myradio extends StatefulWidget {
@@ -224,7 +230,7 @@ class _HomeState extends State<Myradio> {
                                   return Container(
                                     child : Card(
                                       elevation : 10,
-                                      color:Colors.orange[300],
+                                      // color:Colors.orange[300],
                                       child: Text(
                                     currentplay,
                                     style: TextStyle(
@@ -242,7 +248,7 @@ class _HomeState extends State<Myradio> {
                                   return Container(
                                     child: Card(
                                       elevation: 10,
-                                       color:Colors.orange[300],
+                                      //  color:Colors.orange[300],
                                       child: Text(
                                         snapshot.data['data'].toString(),
                                         style: TextStyle(
@@ -256,7 +262,7 @@ class _HomeState extends State<Myradio> {
                               }
                               return Container(
                                 child: Card(
-                                    color: Colors.orange[300],
+                                    // color: Colors.orange[300],
                                     elevation: 10,
                                     //  color:Colors.orange[300],
                                     child: Text(
